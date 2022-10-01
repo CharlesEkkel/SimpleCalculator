@@ -1,59 +1,64 @@
-import {
-    FaBackspace,
-    FaDivide,
-    FaEquals,
-    FaExclamation,
-    FaMinus,
-    FaPercent,
-    FaPlus,
-    FaRecycle,
-    FaSquareRootAlt,
-    FaTimes,
-} from "react-icons/fa";
+import { FaEquals } from "react-icons/fa";
+import renderToken from "../renderTokens";
+import useCalcStore, { Token } from "../store";
 import Button from "./Button";
 
 interface CalculatorProps {}
 
 const Calculator = (props: CalculatorProps) => {
+    const runEquals = useCalcStore((state) => state.calculateResult);
+    const addToken = useCalcStore((state) => state.addToken);
+
+    const click = (token: Token) => () => addToken(token)
+
     return (
         <div className="grid grid-cols-5 grid-rows-7 bg-sky-100 rounded-lg">
             <div />
             <div />
-            <Button value={"C"} />
-            <Button value={<FaBackspace />} />
-            <Button value={<FaRecycle />} />
-            <Button value={"sin"} />
-            <Button value={"cos"} />
-            <Button value={"tan"} />
-            <Button value={"ln"} />
-            <Button value={"log"} />
-            <Button value={"Rad"} />
-            <Button value={<FaSquareRootAlt />} />
-            <Button value={"()"} />
-            <Button value={<FaPercent />} />
-            <Button value={<FaExclamation />} />
-            <Button value={<FaDivide />} />
-            <Button value={"7"} />
-            <Button value={"8"} />
-            <Button value={"9"} />
-            <Button value={<FaTimes />} />
-            <Button value={"e"} />
-            <Button value={"4"} />
-            <Button value={"5"} />
-            <Button value={"6"} />
-            <Button value={<FaMinus />} />
-            <Button value={"x^y"} />
-            <Button value={"1"} />
-            <Button value={"2"} />
-            <Button value={"3"} />
-            <Button value={<FaPlus />} />
-            <Button value={"x^2"} />
-            <Button value={"+-"} />
-            <Button value={"0"} />
-            <Button value={"."} />
-            <Button value={<FaEquals />} />
+            {tokensInOrder.map((token) =>
+                <Button
+                    onClick={click(token)}
+                    icon={renderToken(token)}
+                />
+            )}
+            <Button onClick={runEquals} icon={<FaEquals />} />
         </div>
     );
 };
 
 export default Calculator;
+
+const tokensInOrder: Token[] = [
+    "clear",
+    "backspace",
+    "cycle",
+    "sin",
+    "cos",
+    "tan",
+    "natural-log",
+    "log",
+    "toggle-radians",
+    "square-root",
+    "brackets",
+    "percentage",
+    "factorial",
+    "divide",
+    7,
+    8,
+    9,
+    "multiply",
+    "e",
+    4,
+    5,
+    6,
+    "subtract",
+    "exponent",
+    1,
+    2,
+    3,
+    "add",
+    "squared",
+    "toggle-polarity",
+    0,
+    "decimal-point",
+]
