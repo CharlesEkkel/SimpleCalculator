@@ -14,7 +14,7 @@ interface CalcState {
     clearAll: () => void;
 }
 
-const useCalcStore = create<CalcState>(devtools((set) => ({
+const useCalcStore = create<CalcState>()(devtools((set) => ({
     oldExpressions: List<List<Token>>(),
     currentTokens: List<Token>(),
     addToken: (token) =>
