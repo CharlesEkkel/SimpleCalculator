@@ -1,69 +1,48 @@
+import { List } from "immutable";
 import create from "zustand";
 import { devtools } from "zustand/middleware";
+import { Token } from "./tokens/tokens";
 
 interface CalcState {
     /* Latest expression is stored the front */
-    oldExpressions: Token[][];
-    currentTokens: Token[];
+    oldExpressions: List<List<Token>>;
+    currentTokens: List<Token>;
     addToken: (token: Token) => void;
     backspace: () => void;
     calculateResult: () => void;
+    clear: () => void;
+    clearAll: () => void;
 }
 
 const useCalcStore = create<CalcState>(devtools((set) => ({
-    oldExpressions: [],
-    currentTokens: [],
+    oldExpressions: List<List<Token>>(),
+    currentTokens: List<Token>(),
     addToken: (token) =>
         set((state) => ({
-            currentTokens: [...state.currentTokens, token],
+            currentTokens: state.currentTokens.push(token),
         })),
     backspace: () =>
         set((state) => ({
-            currentTokens: state.currentTokens.slice(0, state.currentTokens.length - 2),
+            currentTokens: state.currentTokens.slice(0, state.currentTokens.count() - 2),
         })),
     calculateResult: () =>
         set((state) => ({
-            oldExpressions: [state.currentTokens, ...state.oldExpressions],
+            oldExpressions: state.oldExpressions.unshift(state.currentTokens),
             currentTokens: processTokens(state.currentTokens)
+        })),
+    clear: () =>
+        set((state) => ({
+            currentTokens: state.currentTokens.clear(),
+        })),
+    clearAll: () =>
+        set((state) => ({
+            oldExpressions: state.oldExpressions.clear(),
+            currentTokens: state.currentTokens.clear(),
         }))
 })));
 
 export default useCalcStore;
 
-const processTokens = (tokens: Token[]): Token[] => {
+const processTokens = (tokens: List<Token>): List<Token> => {
     return tokens.slice(0, 1)
 }
-
-export type Token =
-    "clear"
-    | "backspace"
-    | "cycle"
-    | "sin"
-    | "cos"
-    | "tan"
-    | "natural-log"
-    | "log"
-    | "toggle-radians"
-    | "square-root"
-    | "brackets"
-    | "percentage"
-    | "factorial"
-    | "divide"
-    | "multiply"
-    | "e"
-    | "subtract"
-    | "exponent"
-    | "add"
-    | "squared"
-    | "toggle-polarity"
-    | "decimal-point"
-    | 0
-    | 1
-    | 2
-    | 3
-    | 4
-    | 5
-    | 6
-    | 7
-    | 8
-    | 9
