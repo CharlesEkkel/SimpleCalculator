@@ -9,40 +9,45 @@ export const renderExpression = (expression: List<Token>): string => {
 
 const renderSection = (bracketToken: Token, expression: Stack<Token>): [string, Stack<Token>] => {
     let runningString = "";
+    let currToken: Token | undefined = bracketToken;
+    let prevToken;
 
     while (true) {
-        const token = expression.peek();
+        prevToken = currToken;
+        currToken = expression.peek();
 
         // Check for empty stack.
-        if (!token)
+        if (!currToken)
             break;
 
         // Update the stack (in O(1) time!!)
         expression = expression.pop()
 
-        if (token === bracketToken) {
-            const [_, right] = token.text;
-            runningString += right;
-            break;
-        }
-
-        switch (token.type) {
+        switch (currToken.type) {
             case "value": {
-                runningString += token.text;
+                runningString += currToken.text;
                 break;
             }
             case "unary-op": {
-                runningString += token.text;
+                runningString += currToken.text;
                 break;
             }
             case "binary-op": {
-                runningString += token.text;
+                runningString += currToken.text;
                 break;
             }
             case "bracket": {
-                const [portion, trimmedExpression] = renderSection(token, expression);
+                if (currToken === bracketToken && prevToken.type === "value") {
+                    // Time to end the bracket!
+                    const [_, right] = currToken.text;
+                    runningString += right;
+                    return [runningString, expression]
+                }
+
+                // Otherwise just start a new bracketed section.
+                const [portion, trimmedExpression] = renderSection(currToken, expression);
                 expression = trimmedExpression;
-                const [left, _] = token.text;
+                const [left, _] = currToken.text;
                 runningString += left + portion;
                 break;
             }
