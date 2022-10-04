@@ -9,42 +9,6 @@ import {
     FaTimes,
 } from "react-icons/fa";
 
-type Digit =
-    "0"
-    | "1"
-    | "2"
-    | "3"
-    | "4"
-    | "5"
-    | "6"
-    | "7"
-    | "8"
-    | "9"
-
-export type TokenText =
-    ""
-    | "sin"
-    | "cos"
-    | "tan"
-    | "㏑"
-    | "㏒"
-    | "√"
-    | ["(", ")"]
-    | "percentage"
-    | "factorial"
-    | "divide"
-    | "multiply"
-    | "e"
-    | "subtract"
-    | "exponent"
-    | "add"
-    | "squared"
-    | "negative"
-    | "decimal-point"
-    | Digit
-
-type TokenType = | "bracket";
-
 export type Token = {
     readonly type: "value" | "unary-op" | "binary-op";
     readonly text: string;

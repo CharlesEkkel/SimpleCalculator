@@ -13,12 +13,12 @@ const Calculation = (props: CalculationProps) => {
         expressions performantly, since otherwise they show in the wrong order. */}
         <div className="flex flex-col-reverse items-end">
             {oldCalculations.slice(0, 3).map(expression =>
-                <p className="text-5xl m-7 text-sky-300 flex flex-row">
+                <p className="text-5xl m-4 text-sky-300 flex flex-row">
                     {renderExpression(expression)}
                 </p>
-            )}
+            ).toArray()}
         </div>
-        <p className="text-5xl m-7 text-sky-600 text-right">
+        <p className="text-5xl m-4 text-sky-600 text-right">
             {renderExpression(currentExpression)}
         </p>
     </div>

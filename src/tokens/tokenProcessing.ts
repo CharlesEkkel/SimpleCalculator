@@ -1,13 +1,13 @@
-import { Stack } from "immutable";
-import { AnyToken, invisibleBracket, Token } from "./tokens";
+import { List, Stack } from "immutable";
+import { Token, invisibleBracket } from "./tokens";
 
-export const renderExpression = (expression: AnyToken[]): string => {
-    const expressionWithClosingBracket = Stack([invisibleBracket as AnyToken]).unshiftAll(expression);
+export const renderExpression = (expression: List<Token>): string => {
+    const expressionWithClosingBracket = Stack([invisibleBracket]).unshiftAll(expression);
     const [value, _] = renderSection(invisibleBracket, expressionWithClosingBracket);
     return value;
 }
 
-const renderSection = (bracketToken: Token<"bracket">, expression: Stack<AnyToken>): [string, Stack<AnyToken>] => {
+const renderSection = (bracketToken: Token, expression: Stack<Token>): [string, Stack<Token>] => {
     let runningString = "";
 
     while (true) {
@@ -16,23 +16,35 @@ const renderSection = (bracketToken: Token<"bracket">, expression: Stack<AnyToke
         // Check for empty stack.
         if (!token)
             break;
-        else {
-            // Update the stack (in O(1) time!!)
-            expression = expression.pop()
 
-            if (token.type === "value") {
+        // Update the stack (in O(1) time!!)
+        expression = expression.pop()
+
+        if (token === bracketToken) {
+            const [_, right] = token.text;
+            runningString += right;
+            break;
+        }
+
+        switch (token.type) {
+            case "value": {
                 runningString += token.text;
-            }
-            if (token.type === "binary-op") {
-                runningString += token.text;
-            }
-            else if (token === bracketToken) {
                 break;
             }
-            else if (token.type === "bracket") {
-                const [portion, trimmedExpression] = renderSection(token as Token<"bracket">, expression);
+            case "unary-op": {
+                runningString += token.text;
+                break;
+            }
+            case "binary-op": {
+                runningString += token.text;
+                break;
+            }
+            case "bracket": {
+                const [portion, trimmedExpression] = renderSection(token, expression);
                 expression = trimmedExpression;
-                runningString += portion;
+                const [left, _] = token.text;
+                runningString += left + portion;
+                break;
             }
         }
     }

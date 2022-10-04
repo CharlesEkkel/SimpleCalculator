@@ -1,7 +1,7 @@
 import { List } from "immutable";
 import create from "zustand";
 import { devtools } from "zustand/middleware";
-import { Token } from "./tokens/tokens";
+import { bracket, Token } from "./tokens/tokens";
 
 interface CalcState {
     /* Latest expression is stored the front */
@@ -19,7 +19,9 @@ const useCalcStore = create<CalcState>()(devtools((set) => ({
     currentTokens: List<Token>(),
     addToken: (token) =>
         set((state) => ({
-            currentTokens: state.currentTokens.push(token),
+            currentTokens: token.type == "unary-op"
+                ? state.currentTokens.push(token, bracket)
+                : state.currentTokens.push(token)
         })),
     backspace: () =>
         set((state) => ({
