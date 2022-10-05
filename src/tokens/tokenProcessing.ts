@@ -37,7 +37,7 @@ const renderSection = (bracketToken: Token, expression: Stack<Token>): [string, 
                 break;
             }
             case "bracket": {
-                if (currToken === bracketToken && prevToken.type === "value") {
+                if (currToken === bracketToken && ["value", "bracket"].includes(prevToken.type)) {
                     // Time to end the bracket!
                     const [_, right] = currToken.text;
                     runningString += right;

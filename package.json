@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "immutable": "^4.1.0",
     "preact": "^10.10.6",
+    "react": "npm:@preact/compat",
+    "react-dom": "npm:@preact/compat",
     "react-icons": "^4.4.0",
     "zustand": "^4.1.1"
   },
