@@ -9,168 +9,195 @@ import {
     FaTimes,
 } from "react-icons/fa";
 
-export type Token = {
-    readonly type: "value" | "unary-op" | "binary-op";
+interface TokenInterface {
+    readonly type: string;
+    readonly text: string | [string, string];
+    readonly icon: JSX.Element | string;
+}
+
+export interface ValueToken extends TokenInterface {
+    readonly type: "value";
     readonly text: string;
     readonly icon: JSX.Element | string;
-} | {
+    readonly value: number;
+}
+
+export interface BracketToken extends TokenInterface {
     readonly type: "bracket";
     readonly text: [string, string];
     readonly icon: JSX.Element | string;
 }
 
-export const invisibleBracket: Token = {
+export interface UnaryOpToken extends TokenInterface {
+    readonly type: "unary-op";
+    readonly text: string;
+    readonly icon: JSX.Element | string;
+    readonly apply: (x: ValueToken) => ValueToken;
+}
+
+export interface BinaryOpToken extends TokenInterface {
+    readonly type: "binary-op";
+    readonly text: string;
+    readonly icon: JSX.Element | string;
+    readonly apply: (x: ValueToken, y: ValueToken) => ValueToken;
+}
+
+export type Token =
+    ValueToken
+    | BracketToken
+    | UnaryOpToken
+    | BinaryOpToken
+
+const mkValue = (x: number): ValueToken => ({
+    type: "value",
+    text: String(x),
+    icon: String(x),
+    value: x
+})
+
+export const zero: Token = mkValue(0)
+export const one: Token = mkValue(1)
+export const two: Token = mkValue(2)
+export const three: Token = mkValue(3)
+export const four: Token = mkValue(4)
+export const five: Token = mkValue(5)
+export const six: Token = mkValue(6)
+export const seven: Token = mkValue(7)
+export const eight: Token = mkValue(8)
+export const nine: Token = mkValue(9)
+
+export const e: Token = {
+    type: "value",
+    text: "e",
+    icon: "e",
+    value: Math.E
+}
+
+export const invisibleBracket: BracketToken = {
     type: "bracket",
     text: ["", ""],
     icon: ""
 }
 
-export const bracket: Token = {
+export const bracket: BracketToken = {
     type: "bracket",
     text: ["(", ")"],
     icon: "()"
 }
 
-export const sin: Token = {
+export const sin: UnaryOpToken = {
     type: "unary-op",
     text: "sin",
-    icon: "sin"
+    icon: "sin",
+    apply: (t) => mkValue(Math.sin(t.value))
 }
 
-export const cos: Token = {
+export const cos: UnaryOpToken = {
     type: "unary-op",
     text: "cos",
-    icon: "cos"
+    icon: "cos",
+    apply: (t) => mkValue(Math.cos(t.value))
 }
 
-export const tan: Token = {
+export const tan: UnaryOpToken = {
     type: "unary-op",
     text: "tan",
-    icon: "tan"
+    icon: "tan",
+    apply: (t) => mkValue(Math.tan(t.value))
 }
 
-export const naturalLog: Token = {
+export const sinDeg: UnaryOpToken = {
+    type: "unary-op",
+    text: "sin",
+    icon: "sin",
+    apply: (t) => mkValue(Math.sin(t.value * 180 / Math.PI))
+}
+
+export const cosDeg: UnaryOpToken = {
+    type: "unary-op",
+    text: "cos",
+    icon: "cos",
+    apply: (t) => mkValue(Math.cos(t.value * 180 / Math.PI))
+}
+
+export const tanDeg: UnaryOpToken = {
+    type: "unary-op",
+    text: "tan",
+    icon: "tan",
+    apply: (t) => mkValue(Math.tan(t.value * 180 / Math.PI))
+}
+
+export const naturalLog: UnaryOpToken = {
     type: "unary-op",
     text: "ln",
-    icon: "ln"
+    icon: "ln",
+    apply: (t) => mkValue(Math.log(t.value))
 }
 
-export const log: Token = {
+export const log: UnaryOpToken = {
     type: "unary-op",
     text: "log₁₀",
-    icon: "log₁₀"
+    icon: "log₁₀",
+    apply: (t) => mkValue(Math.log10(t.value))
 }
 
-export const squareRoot: Token = {
+export const squareRoot: UnaryOpToken = {
     type: "unary-op",
     text: "√",
-    icon: <FaSquareRootAlt />
+    icon: <FaSquareRootAlt />,
+    apply: (t) => mkValue(Math.sqrt(t.value))
 }
 
-export const factorial: Token = {
+export const factorial: UnaryOpToken = {
     type: "unary-op",
     text: "!",
-    icon: "!"
+    icon: "!",
+    apply: (t) => {
+        let result = t.value;
+        for (let i = 2; i < t.value; i++)
+            result++;
+        return mkValue(result);
+    }
 }
 
-export const squared: Token = {
+export const squared: UnaryOpToken = {
     type: "unary-op",
     text: "x²",
-    icon: "x²"
+    icon: "x²",
+    apply: (t) => mkValue((t.value) ** 2)
 }
 
-export const add: Token = {
+export const add: BinaryOpToken = {
     type: "binary-op",
     text: "+",
-    icon: <FaPlus />
+    icon: <FaPlus />,
+    apply: (t1, t2) => mkValue(t1.value + t2.value)
 }
 
-export const subtract: Token = {
+export const subtract: BinaryOpToken = {
     type: "binary-op",
     text: "-",
-    icon: <FaMinus />
+    icon: <FaMinus />,
+    apply: (t1, t2) => mkValue(t1.value - t2.value)
 }
 
-export const multiply: Token = {
+export const multiply: BinaryOpToken = {
     type: "binary-op",
     text: "⨯",
-    icon: <FaTimes />
+    icon: <FaTimes />,
+    apply: (t1, t2) => mkValue(t1.value * t2.value)
 }
 
-export const divide: Token = {
+export const divide: BinaryOpToken = {
     type: "binary-op",
     text: "÷",
-    icon: <FaDivide />
+    icon: <FaDivide />,
+    apply: (t1, t2) => mkValue(t1.value / t2.value)
 }
 
-export const exponent: Token = {
+export const exponent: BinaryOpToken = {
     type: "binary-op",
     text: "x¹⁰",
-    icon: "x¹⁰"
-}
-
-export const zero: Token = {
-    type: "value",
-    text: "0",
-    icon: "0"
-}
-
-export const one: Token = {
-    type: "value",
-    text: "1",
-    icon: "1"
-}
-
-export const two: Token = {
-    type: "value",
-    text: "2",
-    icon: "2"
-}
-
-export const three: Token = {
-    type: "value",
-    text: "3",
-    icon: "3"
-}
-
-export const four: Token = {
-    type: "value",
-    text: "4",
-    icon: "4"
-}
-
-export const five: Token = {
-    type: "value",
-    text: "5",
-    icon: "5"
-}
-
-export const six: Token = {
-    type: "value",
-    text: "6",
-    icon: "6"
-}
-
-export const seven: Token = {
-    type: "value",
-    text: "7",
-    icon: "7"
-}
-
-export const eight: Token = {
-    type: "value",
-    text: "8",
-    icon: "8"
-}
-
-export const nine: Token = {
-    type: "value",
-    text: "9",
-    icon: "9"
-}
-
-export const e: Token = {
-    type: "value",
-    text: "e",
-    icon: "e"
+    icon: "x¹⁰",
+    apply: (t1, t2) => mkValue(t1.value ** t2.value)
 }

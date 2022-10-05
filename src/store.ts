@@ -7,16 +7,19 @@ interface CalcState {
     /* Latest expression is stored the front */
     oldExpressions: List<List<Token>>;
     currentTokens: List<Token>;
+    usingRadians: boolean;
     addToken: (token: Token) => void;
     backspace: () => void;
     calculateResult: () => void;
     clear: () => void;
     clearAll: () => void;
+    toggleRadians: () => void;
 }
 
 const useCalcStore = create<CalcState>()(devtools((set) => ({
     oldExpressions: List<List<Token>>(),
     currentTokens: List<Token>(),
+    usingRadians: true,
     addToken: (token) =>
         set((state) => ({
             currentTokens: token.type == "unary-op"
@@ -40,6 +43,10 @@ const useCalcStore = create<CalcState>()(devtools((set) => ({
         set((state) => ({
             oldExpressions: state.oldExpressions.clear(),
             currentTokens: state.currentTokens.clear(),
+        })),
+    toggleRadians: () =>
+        set(state => ({
+            usingRadians: !state.usingRadians
         }))
 })));
 

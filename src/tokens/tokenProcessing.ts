@@ -2,7 +2,7 @@ import { List, Stack } from "immutable";
 import { Token, invisibleBracket } from "./tokens";
 
 export const renderExpression = (expression: List<Token>): string => {
-    const expressionWithClosingBracket = Stack([invisibleBracket]).unshiftAll(expression);
+    const expressionWithClosingBracket = Stack([invisibleBracket as Token]).unshiftAll(expression);
     const [value, _] = renderSection(invisibleBracket, expressionWithClosingBracket);
     return value;
 }
