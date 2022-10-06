@@ -1,4 +1,4 @@
-import { FaEquals } from "react-icons/fa";
+import { FaEquals, FaRecycle } from "react-icons/fa";
 import useCalcStore from "../store";
 import { Token } from "../tokens/tokens";
 import * as Tokens from "../tokens/tokens";
@@ -11,6 +11,7 @@ const Calculator = (props: CalculatorProps) => {
     const addToken = useCalcStore((state) => state.addToken);
     const runClear = useCalcStore((state) => state.clear);
     const runClearAll = useCalcStore((state) => state.clearAll);
+    const runBackspace = useCalcStore((state) => state.backspace);
     const isRadiansEnabled = useCalcStore((state) => state.usingRadians);
     const toggleRadians = useCalcStore((state) => state.toggleRadians);
 
@@ -28,9 +29,14 @@ const Calculator = (props: CalculatorProps) => {
         <div className="grid grid-cols-5 grid-rows-7 bg-sky-100 rounded-lg">
             <Button onClick={runClearAll} icon="CA" />
             <Button onClick={runClear} icon="C" />
+            <Button onClick={runBackspace} icon="<=" />
+            <Button icon={<FaRecycle />} />
             <Button onClick={toggleRadians} icon={isRadiansEnabled ? "Rad" : "Deg"} />
             {renderTokenList(isRadiansEnabled ? trigTokens : degreeTrigTokens)}
             {renderTokenList(otherTokens)}
+            <div />
+            <div />
+            <div />
             <Button onClick={runEquals} icon={<FaEquals />} />
         </div>
     );
@@ -54,17 +60,27 @@ const degreeTrigTokens: Tokens.UnaryOpToken[] = [
 const otherTokens: Token[] = [
     Tokens.naturalLog,
     Tokens.log,
+    Tokens.squareRoot,
     Tokens.bracket,
+    Tokens.modulus,
+    Tokens.factorial,
     Tokens.divide,
-    Tokens.one,
-    Tokens.two,
-    Tokens.three,
-    Tokens.four,
-    Tokens.five,
-    Tokens.six,
     Tokens.seven,
     Tokens.eight,
     Tokens.nine,
+    Tokens.multiply,
+    Tokens.e,
+    Tokens.four,
+    Tokens.five,
+    Tokens.six,
+    Tokens.subtract,
+    Tokens.exponent,
+    Tokens.one,
+    Tokens.two,
+    Tokens.three,
+    Tokens.add,
+    Tokens.squared,
+    Tokens.zero
 ]
 
 const tokensInOrder: (string | number)[] = [

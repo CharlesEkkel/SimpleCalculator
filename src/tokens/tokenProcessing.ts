@@ -28,7 +28,11 @@ const renderSection = (bracketToken: Token, expression: Stack<Token>): [string, 
                 runningString += currToken.text;
                 break;
             }
-            case "unary-op": {
+            case "left-unary-op": {
+                runningString += currToken.text;
+                break;
+            }
+            case "right-unary-op": {
                 runningString += currToken.text;
                 break;
             }

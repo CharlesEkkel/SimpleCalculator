@@ -1,4 +1,4 @@
-import { List } from "immutable";
+import { List, Set } from "immutable";
 import create from "zustand";
 import { devtools } from "zustand/middleware";
 import { bracket, Token } from "./tokens/tokens";
@@ -22,22 +22,20 @@ const useCalcStore = create<CalcState>()(devtools((set) => ({
     usingRadians: true,
     addToken: (token) =>
         set((state) => ({
-            currentTokens: token.type == "unary-op"
-                ? state.currentTokens.push(token, bracket)
-                : state.currentTokens.push(token)
+            currentTokens: _addToken(token, state.currentTokens)
         })),
     backspace: () =>
         set((state) => ({
-            currentTokens: state.currentTokens.slice(0, state.currentTokens.count() - 2),
+            currentTokens: state.currentTokens.slice(0, state.currentTokens.count() - 2)
         })),
     calculateResult: () =>
         set((state) => ({
             oldExpressions: state.oldExpressions.unshift(state.currentTokens),
-            currentTokens: processTokens(state.currentTokens)
+            currentTokens: _addToken(state.currentTokens.first(), state.currentTokens.clear())
         })),
     clear: () =>
         set((state) => ({
-            currentTokens: state.currentTokens.clear(),
+            currentTokens: state.currentTokens.clear()
         })),
     clearAll: () =>
         set((state) => ({
@@ -45,13 +43,28 @@ const useCalcStore = create<CalcState>()(devtools((set) => ({
             currentTokens: state.currentTokens.clear(),
         })),
     toggleRadians: () =>
-        set(state => ({
+        set((state) => ({
             usingRadians: !state.usingRadians
         }))
 })));
 
 export default useCalcStore;
 
-const processTokens = (tokens: List<Token>): List<Token> => {
-    return tokens.slice(0, 1)
+const _addToken = (token: Token, currList: List<Token>): List<Token> => {
+
+    if (token.type === "left-unary-op")
+        return currList.push(token, bracket)
+
+    const prevToken = currList.last();
+    if (!prevToken || shouldAddToken(prevToken, token))
+        return currList.push(token)
+
+    return currList
+}
+
+const shouldAddToken = (prevToken: Token, newToken: Token): boolean => {
+    const repeatableTokenTypes = Set<typeof newToken.type>(["value", "bracket"]);
+
+    return repeatableTokenTypes.contains(prevToken.type)
+        || repeatableTokenTypes.contains(newToken.type);
 }
