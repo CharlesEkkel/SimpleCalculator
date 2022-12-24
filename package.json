@@ -11,20 +11,21 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "immutable": "^4.1.0",
-    "preact": "^10.10.6",
+    "immutable": "^4.2.1",
+    "preact": "^10.11.3",
     "react": "npm:@preact/compat",
     "react-dom": "npm:@preact/compat",
-    "react-icons": "^4.4.0",
-    "zustand": "^4.1.1"
+    "react-icons": "^4.7.1",
+    "zustand": "^4.1.5"
   },
   "devDependencies": {
-    "@preact/preset-vite": "^2.3.0",
+    "@preact/preset-vite": "^2.4.0",
+    "@babel/core": "^7.12.10",
     "autoprefixer": "^10.4.12",
-    "postcss": "^8.4.16",
-    "tailwindcss": "^3.1.8",
-    "typescript": "^4.6.4",
-    "vite": "^3.1.0",
-    "vitest": "^0.23.4"
+    "postcss": "^8.4.20",
+    "tailwindcss": "^3.2.4",
+    "typescript": "^4.9.3",
+    "vite": "^4.0.3",
+    "vitest": "^0.25.7"
   }
 }
