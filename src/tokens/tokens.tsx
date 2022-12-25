@@ -38,6 +38,7 @@ export interface UnaryOpToken extends TokenInterface {
 
 export interface BinaryOpToken extends TokenInterface {
     readonly type: "binary-op";
+    readonly priority: number;
     readonly text: string;
     readonly icon: JSX.Element | string;
     readonly apply: (x: ValueToken, y: ValueToken) => ValueToken;
@@ -170,6 +171,7 @@ export const squared: UnaryOpToken = {
 
 export const add: BinaryOpToken = {
     type: "binary-op",
+    priority: 1,
     text: "+",
     icon: <FaPlus />,
     apply: (t1, t2) => mkValue(t1.value + t2.value)
@@ -177,6 +179,7 @@ export const add: BinaryOpToken = {
 
 export const subtract: BinaryOpToken = {
     type: "binary-op",
+    priority: 1,
     text: "-",
     icon: <FaMinus />,
     apply: (t1, t2) => mkValue(t1.value - t2.value)
@@ -184,6 +187,7 @@ export const subtract: BinaryOpToken = {
 
 export const multiply: BinaryOpToken = {
     type: "binary-op",
+    priority: 2,
     text: "⨯",
     icon: <FaTimes />,
     apply: (t1, t2) => mkValue(t1.value * t2.value)
@@ -191,6 +195,7 @@ export const multiply: BinaryOpToken = {
 
 export const divide: BinaryOpToken = {
     type: "binary-op",
+    priority: 2,
     text: "÷",
     icon: <FaDivide />,
     apply: (t1, t2) => mkValue(t1.value / t2.value)
@@ -198,6 +203,7 @@ export const divide: BinaryOpToken = {
 
 export const exponent: BinaryOpToken = {
     type: "binary-op",
+    priority: 3,
     text: "^",
     icon: "x^y",
     apply: (t1, t2) => mkValue(t1.value ** t2.value)
@@ -205,6 +211,7 @@ export const exponent: BinaryOpToken = {
 
 export const modulus: BinaryOpToken = {
     type: "binary-op",
+    priority: 0,
     text: "%",
     icon: <FaPercent />,
     apply: (t1, t2) => mkValue(t1.value % t2.value)
