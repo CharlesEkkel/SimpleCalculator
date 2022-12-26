@@ -1,7 +1,8 @@
 import { List, Set } from "immutable";
 import create from "zustand";
 import { devtools } from "zustand/middleware";
-import { bracket, Token } from "./tokens/tokens";
+import { evaluateTokens } from "./tokens/tokenProcessing";
+import { bracket, mkValue, Token } from "./tokens/tokens";
 
 interface CalcState {
     /* Latest expression is stored the front */
@@ -31,7 +32,9 @@ const useCalcStore = create<CalcState>()(devtools((set) => ({
     calculateResult: () =>
         set((state) => ({
             oldExpressions: state.oldExpressions.unshift(state.currentTokens),
-            currentTokens: _addToken(state.currentTokens.first(), state.currentTokens.clear())
+            currentTokens: _addToken(
+                mkValue(evaluateTokens(state.currentTokens))
+                , state.currentTokens.clear())
         })),
     clear: () =>
         set((state) => ({

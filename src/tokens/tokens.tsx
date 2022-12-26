@@ -12,49 +12,48 @@ type TokenType = "value" | "bracket" | "left-unary-op" | "right-unary-op" | "bin
 
 interface TokenInterface {
     readonly type: TokenType;
-    readonly text: string | [string, string];
+    readonly value: number | string | [string, string];
     readonly icon: JSX.Element | string;
 }
 
 export interface ValueToken extends TokenInterface {
     readonly type: "value";
-    readonly text: string;
-    readonly icon: JSX.Element | string;
     readonly value: number;
+    readonly icon: JSX.Element | string;
 }
 
 export interface BracketToken extends TokenInterface {
     readonly type: "bracket";
-    readonly text: [string, string];
+    readonly value: [string, string];
     readonly icon: JSX.Element | string;
 }
 
 export interface UnaryOpToken extends TokenInterface {
     readonly type: "left-unary-op" | "right-unary-op";
-    readonly text: string;
+    readonly value: string;
     readonly icon: JSX.Element | string;
-    readonly apply: (x: ValueToken) => ValueToken;
+    readonly apply: (x: number) => number;
 }
 
 export interface BinaryOpToken extends TokenInterface {
     readonly type: "binary-op";
     readonly priority: number;
-    readonly text: string;
+    readonly value: string;
     readonly icon: JSX.Element | string;
-    readonly apply: (x: ValueToken, y: ValueToken) => ValueToken;
+    readonly apply: (x: number, y: number) => number;
 }
+
+export type OperationToken = UnaryOpToken | BinaryOpToken;
 
 export type Token =
     ValueToken
     | BracketToken
-    | UnaryOpToken
-    | BinaryOpToken
+    | OperationToken;
 
-const mkValue = (x: number): ValueToken => ({
+export const mkValue = (x: number): ValueToken => ({
     type: "value",
-    text: String(x),
+    value: x,
     icon: String(x),
-    value: x
 })
 
 export const zero: Token = mkValue(0)
@@ -70,149 +69,148 @@ export const nine: Token = mkValue(9)
 
 export const e: Token = {
     type: "value",
-    text: "e",
+    value: Math.E,
     icon: "e",
-    value: Math.E
 }
 
 export const invisibleBracket: BracketToken = {
     type: "bracket",
-    text: ["", ""],
+    value: ["", ""],
     icon: ""
 }
 
 export const bracket: BracketToken = {
     type: "bracket",
-    text: ["(", ")"],
+    value: ["(", ")"],
     icon: "()"
 }
 
 export const sin: UnaryOpToken = {
     type: "left-unary-op",
-    text: "sin",
+    value: "sin",
     icon: "sin",
-    apply: (t) => mkValue(Math.sin(t.value))
+    apply: (x) => Math.sin(x)
 }
 
 export const cos: UnaryOpToken = {
     type: "left-unary-op",
-    text: "cos",
+    value: "cos",
     icon: "cos",
-    apply: (t) => mkValue(Math.cos(t.value))
+    apply: (x) => Math.cos(x)
 }
 
 export const tan: UnaryOpToken = {
     type: "left-unary-op",
-    text: "tan",
+    value: "tan",
     icon: "tan",
-    apply: (t) => mkValue(Math.tan(t.value))
+    apply: (x) => Math.tan(x)
 }
 
 export const sinDeg: UnaryOpToken = {
     type: "left-unary-op",
-    text: "sin",
+    value: "sin",
     icon: "sin",
-    apply: (t) => mkValue(Math.sin(t.value * 180 / Math.PI))
+    apply: (x) => Math.sin(x * 180 / Math.PI)
 }
 
 export const cosDeg: UnaryOpToken = {
     type: "left-unary-op",
-    text: "cos",
+    value: "cos",
     icon: "cos",
-    apply: (t) => mkValue(Math.cos(t.value * 180 / Math.PI))
+    apply: (x) => Math.cos(x * 180 / Math.PI)
 }
 
 export const tanDeg: UnaryOpToken = {
     type: "left-unary-op",
-    text: "tan",
+    value: "tan",
     icon: "tan",
-    apply: (t) => mkValue(Math.tan(t.value * 180 / Math.PI))
+    apply: (x) => Math.tan(x * 180 / Math.PI)
 }
 
 export const naturalLog: UnaryOpToken = {
     type: "left-unary-op",
-    text: "ln",
+    value: "ln",
     icon: "ln",
-    apply: (t) => mkValue(Math.log(t.value))
+    apply: (x) => Math.log(x)
 }
 
 export const log: UnaryOpToken = {
     type: "left-unary-op",
-    text: "log₁₀",
+    value: "log₁₀",
     icon: "log₁₀",
-    apply: (t) => mkValue(Math.log10(t.value))
+    apply: (x) => Math.log10(x)
 }
 
 export const squareRoot: UnaryOpToken = {
     type: "left-unary-op",
-    text: "√",
+    value: "√",
     icon: <FaSquareRootAlt />,
-    apply: (t) => mkValue(Math.sqrt(t.value))
+    apply: (x) => Math.sqrt(x)
 }
 
 export const factorial: UnaryOpToken = {
     type: "right-unary-op",
-    text: "!",
+    value: "!",
     icon: <FaExclamation />,
-    apply: (t) => {
-        let result = t.value;
-        for (let i = 2; i < t.value; i++)
+    apply: (x) => {
+        let result = x;
+        for (let i = 2; i < x; i++)
             result++;
-        return mkValue(result);
+        return result;
     }
 }
 
 export const squared: UnaryOpToken = {
     type: "right-unary-op",
-    text: "²",
+    value: "²",
     icon: "x²",
-    apply: (t) => mkValue((t.value) ** 2)
+    apply: (x) => x ** 2
 }
 
 export const add: BinaryOpToken = {
     type: "binary-op",
     priority: 1,
-    text: "+",
+    value: "+",
     icon: <FaPlus />,
-    apply: (t1, t2) => mkValue(t1.value + t2.value)
+    apply: (x, y) => x + y
 }
 
 export const subtract: BinaryOpToken = {
     type: "binary-op",
     priority: 1,
-    text: "-",
+    value: "-",
     icon: <FaMinus />,
-    apply: (t1, t2) => mkValue(t1.value - t2.value)
+    apply: (x, y) => x - y
 }
 
 export const multiply: BinaryOpToken = {
     type: "binary-op",
     priority: 2,
-    text: "⨯",
+    value: "⨯",
     icon: <FaTimes />,
-    apply: (t1, t2) => mkValue(t1.value * t2.value)
+    apply: (x, y) => x * y
 }
 
 export const divide: BinaryOpToken = {
     type: "binary-op",
     priority: 2,
-    text: "÷",
+    value: "÷",
     icon: <FaDivide />,
-    apply: (t1, t2) => mkValue(t1.value / t2.value)
+    apply: (x, y) => x / y
 }
 
 export const exponent: BinaryOpToken = {
     type: "binary-op",
     priority: 3,
-    text: "^",
+    value: "^",
     icon: "x^y",
-    apply: (t1, t2) => mkValue(t1.value ** t2.value)
+    apply: (x, y) => x ** y
 }
 
 export const modulus: BinaryOpToken = {
     type: "binary-op",
     priority: 0,
-    text: "%",
+    value: "%",
     icon: <FaPercent />,
-    apply: (t1, t2) => mkValue(t1.value % t2.value)
+    apply: (x, y) => x % y
 }
