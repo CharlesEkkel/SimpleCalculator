@@ -50,11 +50,25 @@ export type Token =
     | BracketToken
     | OperationToken;
 
+/**
+* Create a ValueToken from a number.
+*/
 export const mkValue = (x: number): ValueToken => ({
     type: "value",
     value: x,
     icon: String(x),
 })
+
+/**
+* Concatenate two ValueTokens as if they were strings.
+*/
+export const combineValues = (t1: ValueToken, t2: ValueToken): ValueToken => {
+    const order = Math.ceil(Math.log10(t2.value))
+    return mkValue(t1.value * 10 ** order + t2.value)
+};
+
+
+/** CONSTANT TOKEN DEFINITIONS **/
 
 export const zero: Token = mkValue(0)
 export const one: Token = mkValue(1)

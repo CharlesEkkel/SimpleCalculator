@@ -1,5 +1,5 @@
 import { List, Stack } from "immutable";
-import { Token, invisibleBracket, BinaryOpToken, UnaryOpToken, ValueToken, OperationToken, mkValue } from "./tokens";
+import { Token, invisibleBracket, BinaryOpToken, UnaryOpToken, ValueToken, OperationToken, mkValue, combineValues } from "./tokens";
 
 export const renderExpression = (expression: List<Token>): string => {
     const expressionWithClosingBracket = Stack([invisibleBracket as Token]).unshiftAll(expression);
@@ -152,7 +152,7 @@ type Node = {
     value: ValueToken;
 };
 
-export const evaluateTokens = (tokens: List<Token>) => 
+export const evaluateTokens = (tokens: List<Token>) =>
     evalOperationTree(buildOperationTree(tokens))
 
 const evalOperationTree = (root: Node): number => {
@@ -165,10 +165,14 @@ const evalOperationTree = (root: Node): number => {
     )
 };
 
+/**
+* Build a tree of binary operations where higher-priority operations are
+* found closer to the leaves of the tree.
+*/
 const buildOperationTree = (tokens: List<Token>): Node => {
     let stack = tokens.toStack();
 
-    let root: Node = {op: "none", value: nextNumber(stack)}
+    let root: Node = { op: "none", value: nextNumber(stack) }
     stack = stack.skipWhile(t => t.type === 'value');
 
     while (!stack.isEmpty()) {
@@ -176,29 +180,39 @@ const buildOperationTree = (tokens: List<Token>): Node => {
         const nextOp = stack.peek();
         stack = stack.pop();
 
-        const num = nextNumber(stack);
-        stack = stack.skipWhile(t => t.type === 'value');
+        // Binary operation, followed by a number
+        if (nextOp?.type === 'binary-op') {
+            const num = nextNumber(stack);
+            stack = stack.skipWhile(t => t.type === 'value');
 
-        if (nextOp?.type === 'binary-op')
             root = processNextOp(root, nextOp, num);
+            continue;
+        }
+
+        //if (nextOp?.type === 'left-unary-op') {
+        //    root = processNextOp(root, nextOp, num);
+        //}
     }
 
     return root;
 };
 
+/** 
+* Add a new operation to the tree.
+*/
 const processNextOp = (root: Node, nextOp: BinaryOpToken, nextVal: ValueToken): Node => {
     if (root.op === 'none' || root.op.priority >= nextOp.priority) {
         return {
             op: nextOp,
             left: root,
-            right: {op: "none", value: nextVal}
+            right: { op: "none", value: nextVal }
         };
-    } 
+    }
 
     const rightNode: Node = {
         op: nextOp,
         left: root.right,
-        right: {op: "none", value: nextVal}
+        right: { op: "none", value: nextVal }
     };
 
     root.right = rightNode;
@@ -206,7 +220,10 @@ const processNextOp = (root: Node, nextOp: BinaryOpToken, nextVal: ValueToken): 
     return root;
 };
 
-const nextNumber = (stack: Stack<Token>): ValueToken => 
-    mkValue(stack.takeWhile(t => t.type === 'value')
-                 .map(t => t as ValueToken)
-                 .reduce((r, next) => r * 10 + next.value, 0))
+/** 
+* Add a new operation to the tree.
+*/
+const nextNumber = (stack: Stack<Token>): ValueToken =>
+    stack.takeWhile(t => t.type === 'value')
+        .map(t => t as ValueToken)
+        .reduce(combineValues, mkValue(0))
