@@ -1,6 +1,6 @@
 import { List } from 'immutable';
 import { describe, it, expect } from 'vitest';
-import { renderExpression } from './tokenProcessing';
+import { renderExpression } from './MathTree';
 import * as T from './tokens';
 
 describe("when rendering an expression", () => {

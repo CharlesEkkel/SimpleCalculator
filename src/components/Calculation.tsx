@@ -1,5 +1,5 @@
 import useCalcStore from "../store";
-import { renderExpression } from "../tokens/tokenProcessing";
+import { renderExpression } from "../tokens/MathTree";
 
 interface CalculationProps {
 }

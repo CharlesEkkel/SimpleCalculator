@@ -1,7 +1,7 @@
 import { List, Set } from "immutable";
 import create from "zustand";
 import { devtools } from "zustand/middleware";
-import { evaluateTokens } from "./tokens/tokenProcessing";
+import { evaluateTokens } from "./tokens/MathTree";
 import { bracket, mkValue, Token } from "./tokens/tokens";
 
 interface CalcState {
