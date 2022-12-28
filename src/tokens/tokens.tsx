@@ -1,3 +1,5 @@
+import { List } from "immutable";
+import * as E from 'fp-ts/Either';
 import {
     FaDivide,
     FaExclamation,
@@ -7,12 +9,13 @@ import {
     FaSquareRootAlt,
     FaTimes,
 } from "react-icons/fa";
+import { match, P } from "ts-pattern";
 
-type TokenType = "value" | "bracket" | "left-unary-op" | "right-unary-op" | "binary-op";
+type TokenType = "value" | "bracket-left" | "bracket-right" | "left-unary-op" | "right-unary-op" | "binary-op";
 
 interface TokenInterface {
     readonly type: TokenType;
-    readonly value: number | string | [string, string];
+    readonly value: number | string;
     readonly icon: JSX.Element | string;
 }
 
@@ -23,8 +26,8 @@ export interface ValueToken extends TokenInterface {
 }
 
 export interface BracketToken extends TokenInterface {
-    readonly type: "bracket";
-    readonly value: [string, string];
+    readonly type: "bracket-left" | "bracket-right";
+    readonly value: string;
     readonly icon: JSX.Element | string;
 }
 
@@ -67,6 +70,116 @@ export const combineValues = (t1: ValueToken, t2: ValueToken): ValueToken => {
     return mkValue(t1.value * 10 ** order + t2.value)
 };
 
+/**
+* Add a token to a list of tokens in such a way that respects the idiosyncracies
+* of how tokens interact.
+*/
+export const addTokenToList = (list: List<Token>, token: Token): E.Either<string, List<Token>> => {
+    if (list.count() === 1 && list.last()?.value === 0) {
+        return match<Token, E.Either<string, List<Token>>>(token)
+            .with(
+                {type: "value"},
+                {type: "bracket-left"},
+                (next) => E.right(list.clear().push(next)))
+            .with(
+                {type: "left-unary-op"},
+                {type: "binary-op"},
+                (next) => E.right(list.push(next)))
+            .with(
+                P._,
+                (next) => E.left(`A '${next.value} cannot be first in an expression.`))
+            .exhaustive()
+    };
+
+    return match<[Token | undefined, Token], E.Either<string, List<Token>>>([list.last(), token])
+        .with(
+            [undefined, {type: "value"}], 
+            [undefined, {type: "bracket-left"}], 
+            [undefined, {type: "left-unary-op"}], 
+            ([_, next]) => 
+                E.right(list.push(next)))
+        .with(
+            [undefined, P._], 
+            ([_, next]) => 
+                E.left(`'${next.value}' cannot be the first value in an expression.`))
+
+
+        .with(
+            [{type: "value"}, {type: "value"}], 
+            ([prev, next]) => 
+                E.right(list.pop().push(combineValues(prev, next))))
+        .with(
+            [{type: "value"}, {type: "right-unary-op"}], 
+            [{type: "value"}, {type: "binary-op"}], 
+            [{type: "value"}, {type: "bracket-right"}], 
+            ([_, next]) => 
+                E.right(list.push(next)))
+        .with(
+            [{type: "value"}, P._], 
+            ([_, next]) => 
+                E.left(`Cannot insert '${next.value}' after a number.`))
+
+
+        .with(
+            [{type: "bracket-left"}, {type: "value"}], 
+            [{type: "bracket-left"}, {type: "left-unary-op"}], 
+            [{type: "bracket-left"}, {type: "bracket-left"}],
+            ([_, next]) => E.right(list.push(next)))
+        .with(
+            [{type: "bracket-left"}, P._], 
+            ([_, next]) => 
+                E.left(`Cannot insert '${next.value}' after an opening bracket.`))
+
+
+        .with(
+            [{type: "bracket-right"}, {type: "binary-op"}], 
+            [{type: "bracket-right"}, {type: "right-unary-op"}], 
+            // Note that bracket counting is done elsewhere, in the store,
+            // so we don't need to worry about it here.
+            [{type: "bracket-right"}, {type: "bracket-right"}], 
+            ([_, next]) => 
+                E.right(list.push(next)))
+        .with(
+            [{type: "bracket-right"}, P._], 
+            ([_, next]) => 
+                E.left(`Cannot insert '${next.value}' after a closing bracket.`))
+
+
+        .with(
+            [{type: "binary-op"}, {type: "value"}], 
+            [{type: "binary-op"}, {type: "bracket-left"}], 
+            [{type: "binary-op"}, {type: "left-unary-op"}], 
+            ([_, next]) => 
+                E.right(list.push(next)))
+        .with(
+            [{type: "binary-op"}, P._], 
+            ([_, next]) =>
+                E.left(`Cannot insert '${next.value}' after a binary operator.`))
+
+        .with(
+            [{type: "left-unary-op"}, {type: "left-unary-op"}], 
+            [{type: "left-unary-op"}, {type: "bracket-left"}], 
+            [{type: "left-unary-op"}, {type: "value"}], 
+            ([_, next]) => 
+                E.right(list.push(next)))
+        .with(
+            [{type: "left-unary-op"}, P._], 
+            ([_, next]) =>
+                E.left(`Cannot insert '${next.value}' after a (leftwise) unary operator.`))
+
+        .with(
+            [{type: "right-unary-op"}, {type: "right-unary-op"}], 
+            [{type: "right-unary-op"}, {type: "binary-op"}], 
+            [{type: "right-unary-op"}, {type: "bracket-right"}], 
+            ([_, next]) => 
+                E.right(list.push(next)))
+        .with(
+            [{type: "right-unary-op"}, P._], 
+            ([_, next]) =>
+                E.left(`Cannot insert '${next.value}' after a (rightwise) unary operator.`))
+
+        .exhaustive()
+};
 
 /** CONSTANT TOKEN DEFINITIONS **/
 
@@ -87,16 +200,28 @@ export const e: Token = {
     icon: "e",
 }
 
-export const invisibleBracket: BracketToken = {
-    type: "bracket",
-    value: ["", ""],
+export const invisibleBracketLeft: BracketToken = {
+    type: "bracket-left",
+    value: "",
     icon: ""
 }
 
-export const bracket: BracketToken = {
-    type: "bracket",
-    value: ["(", ")"],
-    icon: "()"
+export const invisibleBracketRight: BracketToken = {
+    type: "bracket-right",
+    value: "",
+    icon: ""
+}
+
+export const bracketLeft: BracketToken = {
+    type: "bracket-left",
+    value: "(",
+    icon: "("
+}
+
+export const bracketRight: BracketToken = {
+    type: "bracket-right",
+    value: ")",
+    icon: ")"
 }
 
 export const sin: UnaryOpToken = {

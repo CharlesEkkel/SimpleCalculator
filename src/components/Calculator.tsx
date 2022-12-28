@@ -36,7 +36,6 @@ const Calculator = (props: CalculatorProps) => {
             {renderTokenList(otherTokens)}
             <div />
             <div />
-            <div />
             <Button onClick={runEquals} icon={<FaEquals />} />
         </div>
     );
@@ -61,7 +60,8 @@ const otherTokens: Token[] = [
     Tokens.naturalLog,
     Tokens.log,
     Tokens.squareRoot,
-    Tokens.bracket,
+    Tokens.bracketLeft,
+    Tokens.bracketRight,
     Tokens.modulus,
     Tokens.factorial,
     Tokens.divide,

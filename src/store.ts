@@ -1,14 +1,16 @@
 import { List, Set } from "immutable";
+import * as E from 'fp-ts/Either';
 import create from "zustand";
 import { devtools } from "zustand/middleware";
 import { evaluateTokens } from "./tokens/MathTree";
-import { bracket, mkValue, Token } from "./tokens/tokens";
+import { addTokenToList, bracket, combineValues, isEmpty, mkValue, Token } from "./tokens/tokens";
 
 interface CalcState {
     /* Latest expression is stored the front */
     oldExpressions: List<List<Token>>;
     currentTokens: List<Token>;
     usingRadians: boolean;
+    errorMessage: string;
     addToken: (token: Token) => void;
     backspace: () => void;
     calculateResult: () => void;
@@ -21,10 +23,14 @@ const useCalcStore = create<CalcState>()(devtools((set) => ({
     oldExpressions: List<List<Token>>(),
     currentTokens: List<Token>(),
     usingRadians: true,
+    errorMessage: "",
     addToken: (token) =>
-        set((state) => ({
-            currentTokens: _addToken(token, state.currentTokens)
-        })),
+        set((state) => 
+            E.match(
+                (err: string) => ({errorMessage: err}),
+                (match: List<Token>) => ({currentTokens: match, errorMessage: ""})
+            )(addTokenToList(state.currentTokens, token))
+        ),
     backspace: () =>
         set((state) => ({
             currentTokens: state.currentTokens.slice(0, state.currentTokens.count() - 2)
@@ -32,18 +38,19 @@ const useCalcStore = create<CalcState>()(devtools((set) => ({
     calculateResult: () =>
         set((state) => ({
             oldExpressions: state.oldExpressions.unshift(state.currentTokens),
-            currentTokens: _addToken(
-                mkValue(evaluateTokens(state.currentTokens))
-                , state.currentTokens.clear())
+            currentTokens: 
+                state.currentTokens
+                    .clear()
+                    .push(mkValue(evaluateTokens(state.currentTokens)))
         })),
     clear: () =>
         set((state) => ({
-            currentTokens: state.currentTokens.clear()
+            currentTokens: state.currentTokens.clear().push(mkValue(0))
         })),
     clearAll: () =>
         set((state) => ({
             oldExpressions: state.oldExpressions.clear(),
-            currentTokens: state.currentTokens.clear(),
+            currentTokens: state.currentTokens.clear().push(mkValue(0)),
         })),
     toggleRadians: () =>
         set((state) => ({
@@ -52,22 +59,3 @@ const useCalcStore = create<CalcState>()(devtools((set) => ({
 })));
 
 export default useCalcStore;
-
-const _addToken = (token: Token, currList: List<Token>): List<Token> => {
-
-    if (token.type === "left-unary-op")
-        return currList.push(token, bracket)
-
-    const prevToken = currList.last();
-    if (!prevToken || shouldAddToken(prevToken, token))
-        return currList.push(token)
-
-    return currList
-}
-
-const shouldAddToken = (prevToken: Token, newToken: Token): boolean => {
-    const repeatableTokenTypes = Set<typeof newToken.type>(["value", "bracket"]);
-
-    return repeatableTokenTypes.contains(prevToken.type)
-        || repeatableTokenTypes.contains(newToken.type);
-}
