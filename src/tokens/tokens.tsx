@@ -63,6 +63,26 @@ export const mkValue = (x: number): ValueToken => ({
 })
 
 /**
+* Utility function to examine if a token is a unary operator.
+*/
+export const isUnary = (token: Token): boolean => 
+    token.type === 'left-unary-op'
+    || token.type === 'right-unary-op'
+
+/**
+* Utility function to examine if a token is a bracket.
+*/
+export const isBracket = (token: Token): boolean => 
+    token.type === 'bracket-left'
+    || token.type === 'bracket-right'
+
+/**
+* Utility function to examine if a token is a value.
+*/
+export const isValue = (token: Token): boolean => 
+    token.type === 'value'
+
+/**
 * Concatenate two ValueTokens as if they were strings.
 */
 export const combineValues = (t1: ValueToken, t2: ValueToken): ValueToken => {
@@ -183,7 +203,7 @@ export const addTokenToList = (list: List<Token>, token: Token): E.Either<string
 
 /** CONSTANT TOKEN DEFINITIONS **/
 
-export const zero: Token = mkValue(0)
+export const zero: ValueToken = mkValue(0)
 export const one: Token = mkValue(1)
 export const two: Token = mkValue(2)
 export const three: Token = mkValue(3)
@@ -200,18 +220,6 @@ export const e: Token = {
     icon: "e",
 }
 
-export const invisibleBracketLeft: BracketToken = {
-    type: "bracket-left",
-    value: "",
-    icon: ""
-}
-
-export const invisibleBracketRight: BracketToken = {
-    type: "bracket-right",
-    value: "",
-    icon: ""
-}
-
 export const bracketLeft: BracketToken = {
     type: "bracket-left",
     value: "(",
@@ -222,6 +230,15 @@ export const bracketRight: BracketToken = {
     type: "bracket-right",
     value: ")",
     icon: ")"
+}
+
+// This is useful for computation purposes, and will not be available to
+// the user.
+export const identity: UnaryOpToken = {
+    type: "left-unary-op",
+    value: "id",
+    icon: "id",
+    apply: (x) => x
 }
 
 export const sin: UnaryOpToken = {
