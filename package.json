@@ -1,0 +1,27 @@
+{
+  "name": "SimpleCalculator",
+  "version": "0.1.0",
+  "description": "Simple Calculator App with the features you need.",
+  "repository": "git@github.com:CharlesEkkel/SimpleCalculator.git",
+  "author": "Charles Taylor <taylorc822@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "private": false,
+  "scripts": {
+    "build": "spago build",
+    "dev": "parcel -p 3000 dev/index.html",
+    "test": "spago test",
+    "gen-css": "tailwindcss build css/tailwind_inputs.css -o dev/tailwind.css && cat dev/tailwind.css | ./css/css2purs.py > src/Tailwind.purs"
+  },
+  "devDependencies": {
+    "parcel": "^2.8.2",
+    "process": "^0.11.10",
+    "purescript": "0.15.6",
+    "spago": "^0.20.9",
+    "tailwindcss": "^3.2.4"
+  },
+  "dependencies": {
+    "postcss": "^8.4.20",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

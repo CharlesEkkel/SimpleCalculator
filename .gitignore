@@ -8,3 +8,6 @@
 /.purs*
 /.psa*
 /.spago
+/src/Tailwind.purs
+/dist/
+/.parcel-cache/
