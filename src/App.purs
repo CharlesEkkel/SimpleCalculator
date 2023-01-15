@@ -2,28 +2,36 @@ module App where
 
 import Prelude
 
+import Components.CalculationResults (calculationResults)
+import Components.CalculatorInput (calculatorInput)
 import React.Basic.DOM as DOM
 import React.Basic.DOM.Events (capture_)
-import React.Basic.Hooks (Component, component, useState, (/\))
+import React.Basic.Hooks (Component, component, mkReducer, useReducer, (/\))
 import React.Basic.Hooks as React
+import State (Action(..), appReducer, initialState)
+
 
 type AppProps = Unit
 
 mkApp :: Component AppProps
-mkApp = component "App" \_props -> React.do
-    counter /\ setCounter <- useState 0
+mkApp = do
+  elCalculationResults <- calculationResults
+  elCalculatorInput <- calculatorInput
+  reducer <- mkReducer appReducer
+
+  component "App" \_props -> React.do
+    
+    appState /\ dispatch <- useReducer initialState reducer  
 
     pure $ DOM.div
         { className: "h-screen w-screen bg-slate-600 flex items-center justify-evenly",
           children: 
-            [ DOM.h1_ [ DOM.text "App" ]
-            , DOM.p_ [ DOM.text "Try clicking the buuuu!" ]
-            , DOM.button
-                { onClick: capture_ $ setCounter (_ + 1)
-                , children:
-                    [ DOM.text "Clicks: "
-                    , DOM.text (show counter)
-                    ]
-                }
-            ]
+          [ elCalculationResults appState,
+            elCalculatorInput {
+              addToken: capture_ <<< dispatch <<< AddToken,
+              runEquals: capture_ $ dispatch RunEquals,
+              clear: capture_ $ dispatch ClearCurrent,
+              clearAll: capture_ $ dispatch ClearAll
+            }
+          ]
         }

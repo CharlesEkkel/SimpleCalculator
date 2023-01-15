@@ -6,21 +6,23 @@
   "author": "Charles Taylor <taylorc822@gmail.com>",
   "license": "GPL-3.0-or-later",
   "private": false,
+  "browserslist": ["defaults"],
   "scripts": {
-    "build": "spago build",
-    "dev": "parcel -p 3000 dev/index.html",
+    "build": "spago build && parcel build public/index.html",
+    "dev": "parcel -p 3000 public/index.html",
     "test": "spago test",
     "gen-css": "tailwindcss build css/tailwind_inputs.css -o dev/tailwind.css && cat dev/tailwind.css | ./css/css2purs.py > src/Tailwind.purs"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.13",
     "parcel": "^2.8.2",
     "process": "^0.11.10",
     "purescript": "0.15.6",
     "spago": "^0.20.9",
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "^3.2.4",
+    "postcss": "^8.4.20"
   },
   "dependencies": {
-    "postcss": "^8.4.20",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }
