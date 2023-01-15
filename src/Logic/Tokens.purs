@@ -3,8 +3,10 @@ module Logic.Tokens where
 import Prelude
 
 import Data.Either (Either)
-import Data.Number (pow, sqrt)
+import Data.Number (cos, log, pow, sin, sqrt, tan)
 import Logic.MathTree (BinaryOp(..), Bracket(..), Priority(..), Tree, UnaryOp(..), Value(..), insertBinaryOp, insertBracket, insertUnaryOp, insertValue)
+import Utils.Maths (factorial)
+import Utils.Maths as M
 
 data Token = TBracket Bracket | TBinaryOp BinaryOp | TUnaryOp UnaryOp | TValue Value
 
@@ -52,9 +54,23 @@ modulusT = TBinaryOp $ BinaryOp Top "mod" mod
 squareRootT :: Token
 squareRootT = TUnaryOp $ LeftOp "√" sqrt
 
-operators :: Array Token
-operators =
-  [ addT
-  , subT
-  , multiplyT
-  ]
+naturalLogT :: Token
+naturalLogT = TUnaryOp $ LeftOp "ln" log
+
+logTenT :: Token
+logTenT = TBinaryOp $ BinaryOp Top "log₁₀" M.log
+
+factorialT :: Token
+factorialT = TUnaryOp $ RightOp "!" factorial
+
+squareT :: Token
+squareT = TUnaryOp $ RightOp "" (flip pow 2.0)
+
+sinT :: Token
+sinT = TUnaryOp $ LeftOp "sin" sin
+
+cosT :: Token
+cosT = TUnaryOp $ LeftOp "cos" cos
+
+tanT :: Token
+tanT = TUnaryOp $ LeftOp "tan" tan
