@@ -5,6 +5,7 @@ import Prelude
 import Data.Either (Either(..))
 import Data.Int (floor, toNumber, trunc)
 import Data.Number (pow)
+import Data.Number.Format (precision)
 import Utils.Maths (log)
 
 data Priority = Bottom | Middle | High | Top
@@ -34,25 +35,27 @@ instance Show Value where
   show (Value num) = show num
 
 instance Eq BinaryOp where
-  eq (BinaryOp priorityA _ _) (BinaryOp priorityB _ _) = 
+  eq (BinaryOp priorityA _ _) (BinaryOp priorityB _ _) =
     eq priorityA priorityB
 
 instance Ord BinaryOp where
-  compare (BinaryOp priorityA _ _) (BinaryOp priorityB _ _) = 
+  compare (BinaryOp priorityA _ _) (BinaryOp priorityB _ _) =
     compare priorityA priorityB
 
 instance Semigroup Value where
-  append (Value x) (Value y) = 
-    let yNum = toNumber y
-        xNum = toNumber x
-        yLen = floor (log 10.0 yNum) + 1
-    in Value $ trunc $ xNum * (10.0 `pow` toNumber yLen) + yNum 
+  append (Value x) (Value y) =
+    let
+      yNum = toNumber y
+      xNum = toNumber x
+      yLen = floor (log 10.0 yNum) + 1
+    in
+      Value $ trunc $ xNum * (10.0 `pow` toNumber yLen) + yNum
 
 startBrackets :: Tree -> Tree
 startBrackets = UnaryNode (LeftOp "" identity)
 
-data Tree = 
-  BinaryNode BinaryOp Tree Tree
+data Tree
+  = BinaryNode BinaryOp Tree Tree
   | UnaryNode UnaryOp Tree
   | ValueLeaf Value
   | EmptyLeaf
@@ -65,9 +68,9 @@ renderTree :: Tree -> String
 renderTree = case _ of
   EmptyLeaf -> ""
   ValueLeaf (Value x) -> show x
-  UnaryNode op child -> case op of 
-     LeftOp opStr _ -> opStr <> renderTree child
-     RightOp opStr _ -> renderTree child <> opStr
+  UnaryNode op child -> case op of
+    LeftOp opStr _ -> opStr <> renderTree child
+    RightOp opStr _ -> renderTree child <> opStr
   BinaryNode (BinaryOp _ opStr _) l r -> renderTree l <> " " <> opStr <> " " <> renderTree r
 
 -- | Evaluate a pre-built mathematical syntax tree down to a single value.
@@ -92,20 +95,19 @@ insertValue newVal = case _ of
 insertBinaryOp :: BinaryOp -> Tree -> Either String Tree
 insertBinaryOp newOp = case _ of
   EmptyLeaf -> Left "A binary operator must follow a value."
-  BinaryNode op left right -> 
-    if newOp >= op
-      then BinaryNode op left <$> insertBinaryOp newOp right
-      else Right $ BinaryNode newOp (BinaryNode op left right) EmptyLeaf
+  BinaryNode op left right ->
+    if newOp >= op then BinaryNode op left <$> insertBinaryOp newOp right
+    else Right $ BinaryNode newOp (BinaryNode op left right) EmptyLeaf
   node -> Right $ BinaryNode newOp node EmptyLeaf
 
 insertUnaryOp :: UnaryOp -> Tree -> Either String Tree
 insertUnaryOp newOp = case _ of
   EmptyLeaf -> case newOp of
-      LeftOp _ _ -> Right $ UnaryNode newOp EmptyLeaf
-      RightOp opStr _ -> Left $ "'" <> opStr <> "' must follow a value, not an operator."
+    LeftOp _ _ -> Right $ UnaryNode newOp EmptyLeaf
+    RightOp opStr _ -> Left $ "'" <> opStr <> "' must follow a value, not an operator."
   ValueLeaf val -> case newOp of
-      LeftOp opStr _ -> Left $ "'" <> opStr <> "' cannot come after a value, only before."
-      RightOp _ _ -> Right $ UnaryNode newOp (ValueLeaf val)
+    LeftOp opStr _ -> Left $ "'" <> opStr <> "' cannot come after a value, only before."
+    RightOp _ _ -> Right $ UnaryNode newOp (ValueLeaf val)
   BinaryNode op left right -> BinaryNode op left <$> insertUnaryOp newOp right
   UnaryNode op child -> UnaryNode op <$> insertUnaryOp newOp child
 
@@ -113,11 +115,11 @@ insertUnaryOp newOp = case _ of
 insertBracket :: Bracket -> Tree -> Either String Tree
 insertBracket bracket = case _ of
   EmptyLeaf -> case bracket of
-      LeftBracket _ -> Right $ startBrackets EmptyLeaf
-      RightBracket _ -> Left "A right bracket must follow a complete expression"
+    LeftBracket _ -> Right $ startBrackets EmptyLeaf
+    RightBracket _ -> Left "A right bracket must follow a complete expression"
   ValueLeaf val -> case bracket of
-      LeftBracket _ -> Left "A left bracket cannot follow a value."
-      RightBracket _ -> Right $ ValueLeaf val
+    LeftBracket _ -> Left "A left bracket cannot follow a value."
+    RightBracket _ -> Right $ ValueLeaf val
   BinaryNode op left right -> BinaryNode op left <$> insertBracket bracket right
   UnaryNode op child -> UnaryNode op <$> insertBracket bracket child
 
@@ -126,9 +128,8 @@ removeLastToken = case _ of
   EmptyLeaf -> EmptyLeaf
   ValueLeaf _ -> EmptyLeaf
   UnaryNode f child -> case child of
-                           EmptyLeaf -> EmptyLeaf
-                           _ -> UnaryNode f $ removeLastToken child
+    EmptyLeaf -> EmptyLeaf
+    _ -> UnaryNode f $ removeLastToken child
   BinaryNode f l r -> case r of
-                          EmptyLeaf -> l
-                          _ -> BinaryNode f l $ removeLastToken r
-
+    EmptyLeaf -> l
+    _ -> BinaryNode f l $ removeLastToken r

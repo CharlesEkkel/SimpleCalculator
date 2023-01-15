@@ -10,10 +10,10 @@ data Token = TBracket Bracket | TBinaryOp BinaryOp | TUnaryOp UnaryOp | TValue V
 
 instance Show Token where
   show = case _ of
-             TBracket bracket -> show bracket
-             TBinaryOp binaryOp -> show binaryOp
-             TUnaryOp unaryOp -> show unaryOp
-             TValue value -> show value
+    TBracket bracket -> show bracket
+    TBinaryOp binaryOp -> show binaryOp
+    TUnaryOp unaryOp -> show unaryOp
+    TValue value -> show value
 
 insertToken :: Token -> Tree -> Either String Tree
 insertToken token tree = case token of
@@ -32,7 +32,7 @@ rightBracketT :: Token
 rightBracketT = TBracket $ RightBracket ")"
 
 addT :: Token
-addT = TBinaryOp $ BinaryOp Middle "+" add 
+addT = TBinaryOp $ BinaryOp Middle "+" add
 
 subT :: Token
 subT = TBinaryOp $ BinaryOp Middle "-" sub
@@ -53,8 +53,8 @@ squareRootT :: Token
 squareRootT = TUnaryOp $ LeftOp "√" sqrt
 
 operators :: Array Token
-operators = [
-  addT,
-  subT,
-  multiplyT
-]
+operators =
+  [ addT
+  , subT
+  , multiplyT
+  ]
