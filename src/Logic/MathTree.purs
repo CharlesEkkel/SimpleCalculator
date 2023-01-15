@@ -3,6 +3,7 @@ module Logic.MathTree where
 import Prelude
 
 import Data.Either (Either(..))
+import Data.Int (floor, toNumber, trunc)
 import Data.Number (pow)
 import Utils.Maths (log)
 
@@ -14,7 +15,23 @@ derive instance ordPriority :: Ord Priority
 data Bracket = LeftBracket String | RightBracket String
 data BinaryOp = BinaryOp Priority String (Number -> Number -> Number)
 data UnaryOp = LeftOp String (Number -> Number) | RightOp String (Number -> Number)
-newtype Value = Value Number
+newtype Value = Value Int
+
+instance Show Bracket where
+  show = case _ of
+    LeftBracket str -> str
+    RightBracket str -> str
+
+instance Show BinaryOp where
+  show (BinaryOp _ str _) = " " <> str <> " "
+
+instance Show UnaryOp where
+  show = case _ of
+    LeftOp str _ -> str
+    RightOp str _ -> str
+
+instance Show Value where
+  show (Value num) = show num
 
 instance Eq BinaryOp where
   eq (BinaryOp priorityA _ _) (BinaryOp priorityB _ _) = 
@@ -26,8 +43,10 @@ instance Ord BinaryOp where
 
 instance Semigroup Value where
   append (Value x) (Value y) = 
-    let yLen = log 10.0 y + 1.0
-    in Value (x * pow 10.0 yLen + y)
+    let yNum = toNumber y
+        xNum = toNumber x
+        yLen = floor (log 10.0 yNum) + 1
+    in Value $ trunc $ xNum * (10.0 `pow` toNumber yLen) + yNum 
 
 startBrackets :: Tree -> Tree
 startBrackets = UnaryNode (LeftOp "" identity)
@@ -39,7 +58,7 @@ data Tree =
   | EmptyLeaf
 
 mkSingletonTree :: Number -> Tree
-mkSingletonTree = ValueLeaf <<< Value
+mkSingletonTree = ValueLeaf <<< Value <<< trunc
 
 -- | Render a tree as a readable, mathematical expression.
 renderTree :: Tree -> String
@@ -55,7 +74,7 @@ renderTree = case _ of
 evaluateTree :: Tree -> Number
 evaluateTree = case _ of
   EmptyLeaf -> 0.0
-  ValueLeaf (Value val) -> val
+  ValueLeaf (Value val) -> toNumber val
   BinaryNode (BinaryOp _ _ f) left right -> f (evaluateTree left) (evaluateTree right)
   UnaryNode op child -> case op of
     LeftOp _ f -> f (evaluateTree child)
@@ -101,4 +120,15 @@ insertBracket bracket = case _ of
       RightBracket _ -> Right $ ValueLeaf val
   BinaryNode op left right -> BinaryNode op left <$> insertBracket bracket right
   UnaryNode op child -> UnaryNode op <$> insertBracket bracket child
+
+removeLastToken :: Tree -> Tree
+removeLastToken = case _ of
+  EmptyLeaf -> EmptyLeaf
+  ValueLeaf _ -> EmptyLeaf
+  UnaryNode f child -> case child of
+                           EmptyLeaf -> EmptyLeaf
+                           _ -> UnaryNode f $ removeLastToken child
+  BinaryNode f l r -> case r of
+                          EmptyLeaf -> l
+                          _ -> BinaryNode f l $ removeLastToken r
 

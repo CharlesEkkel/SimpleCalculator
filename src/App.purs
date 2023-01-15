@@ -17,7 +17,10 @@ mkApp :: Component AppProps
 mkApp = do
   elCalculationResults <- calculationResults
   elCalculatorInput <- calculatorInput
+
   reducer <- mkReducer appReducer
+
+  -- message <- getRandomHintMessage
 
   component "App" \_props -> React.do
     
@@ -28,10 +31,13 @@ mkApp = do
           children: 
           [ elCalculationResults appState,
             elCalculatorInput {
-              addToken: capture_ <<< dispatch <<< AddToken,
+              runAddToken: capture_ <<< dispatch <<< AddToken,
               runEquals: capture_ $ dispatch RunEquals,
-              clear: capture_ $ dispatch ClearCurrent,
-              clearAll: capture_ $ dispatch ClearAll
+              runClear: capture_ $ dispatch ClearCurrent,
+              runClearAll: capture_ $ dispatch ClearAll,
+              runBackspace: capture_ $ dispatch Backspace,
+              runToggleRadians: capture_ $ dispatch ToggleRadians,
+              isRadiansEnabled: appState.isRadiansEnabled
             }
           ]
         }
