@@ -60,6 +60,11 @@ data Tree
   | ValueLeaf Value
   | EmptyLeaf
 
+isEmptyTree :: Tree -> Boolean
+isEmptyTree = case _ of
+  EmptyLeaf -> true
+  _ -> false
+
 mkSingletonTree :: Number -> Tree
 mkSingletonTree = ValueLeaf <<< Value <<< trunc
 
@@ -126,7 +131,9 @@ insertBracket bracket = case _ of
 removeLastToken :: Tree -> Tree
 removeLastToken = case _ of
   EmptyLeaf -> EmptyLeaf
-  ValueLeaf _ -> EmptyLeaf
+  ValueLeaf (Value val) ->
+    if log 10.0 (toNumber val) >= 1.0 then ValueLeaf (Value (val `div` 10))
+    else EmptyLeaf
   UnaryNode f child -> case child of
     EmptyLeaf -> EmptyLeaf
     _ -> UnaryNode f $ removeLastToken child

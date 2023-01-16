@@ -3,7 +3,7 @@ module Logic.Tokens where
 import Prelude
 
 import Data.Either (Either)
-import Data.Number (cos, log, pow, sin, sqrt, tan)
+import Data.Number (cos, log, pow, sin, sqrt, tan, (%))
 import Logic.MathTree (BinaryOp(..), Bracket(..), Priority(..), Tree, UnaryOp(..), Value(..), insertBinaryOp, insertBracket, insertUnaryOp, insertValue)
 import Utils.Maths (factorial)
 import Utils.Maths as M
@@ -49,7 +49,7 @@ exponentT :: Token
 exponentT = TBinaryOp $ BinaryOp Top "^" pow
 
 modulusT :: Token
-modulusT = TBinaryOp $ BinaryOp Top "mod" mod
+modulusT = TBinaryOp $ BinaryOp Top "mod" (%)
 
 squareRootT :: Token
 squareRootT = TUnaryOp $ LeftOp "√" sqrt
@@ -64,7 +64,7 @@ factorialT :: Token
 factorialT = TUnaryOp $ RightOp "!" factorial
 
 squareT :: Token
-squareT = TUnaryOp $ RightOp "" (flip pow 2.0)
+squareT = TUnaryOp $ RightOp "^2" (flip pow 2.0)
 
 sinT :: Token
 sinT = TUnaryOp $ LeftOp "sin" sin
