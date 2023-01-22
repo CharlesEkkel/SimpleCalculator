@@ -102,11 +102,11 @@ consDigit digit (Digits digits) = Digits (digit : digits)
 extractDigit :: Int -> Int -> Maybe Digit
 extractDigit int column =
   let
-    powerOfTen = 10 `pow` (abs column - 1)
+    powerOfTen = 10 `pow` abs column
     onlyRightInt = (abs int) `mod` powerOfTen
-    onlyDigit = onlyRightInt `div` powerOfTen
+    onlyDigit = onlyRightInt `div` (powerOfTen / 10)
   in
-    if powerOfTen - int > 0 then Nothing
+    if column > intLen int then Nothing
     else intToDigit onlyDigit
 
 stringToDigits :: String -> Maybe Digits

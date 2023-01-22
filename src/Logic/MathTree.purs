@@ -3,18 +3,8 @@ module Logic.MathTree where
 import Prelude
 
 import Data.Either (Either(..))
-import Data.Enum (class Enum)
-import Data.Foldable (class Foldable, fold, foldl)
-import Data.FoldableWithIndex (foldlWithIndex)
-import Data.Generic.Rep (class Generic)
-import Data.Int (fromString, toNumber)
-import Data.Int as Int
-import Data.List (List, fromFoldable, length, reverse, singleton, (..), (:))
 import Data.Maybe (Maybe(..))
-import Data.String.CodeUnits (toCharArray)
-import Data.Tuple.Nested ((/\))
 import Logic.Digits (Digit, PreciseNum, appendDigit, digitToPrecNum, numberToPrecise, preciseToNumber, removeDigit)
-import Utils.Maths (intLen, isInt, log, splitDecimal)
 
 data Priority = Bottom | Middle | High | Top
 

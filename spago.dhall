@@ -12,7 +12,8 @@ to generate this file without the comments in this block.
 -}
 { name = "my-project"
 , dependencies =
-  [ "arrays"
+  [ "aff"
+  , "arrays"
   , "console"
   , "effect"
   , "either"
@@ -25,10 +26,13 @@ to generate this file without the comments in this block.
   , "numbers"
   , "partial"
   , "prelude"
+  , "quickcheck"
   , "random"
   , "react-basic"
   , "react-basic-dom"
   , "react-basic-hooks"
+  , "spec"
+  , "spec-quickcheck"
   , "strings"
   , "tuples"
   , "web-dom"
