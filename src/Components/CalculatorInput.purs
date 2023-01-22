@@ -4,7 +4,11 @@ import Prelude
 
 import Components.Button (mkButton)
 import Data.Array ((..))
-import Logic.Tokens (Token, addT, cosT, divideT, exponentT, factorialT, leftBracketT, logTenT, mkValueT, modulusT, multiplyT, naturalLogT, rightBracketT, sinT, squareRootT, squareT, subT, tanT)
+import Data.Enum (enumFromTo)
+import Data.Int (toNumber)
+import Data.Number (e)
+import Logic.Digits (Digit(..))
+import Logic.Tokens (Token, addT, cosT, divideT, exponentT, factorialT, leftBracketT, logTenT, mkDigitT, modulusT, multiplyT, naturalLogT, rightBracketT, sinT, squareRootT, squareT, subT, tanT)
 import React.Basic.DOM as DOM
 import React.Basic.Events (EventHandler)
 import React.Basic.Hooks (Component, component)
@@ -54,16 +58,16 @@ calculatorInput = do
                 ]
 
             <>
-              map (mkTokenButton <<< mkValueT) (7 .. 9)
+              map (mkTokenButton <<< mkDigitT) (Seven `enumFromTo` Nine)
 
             <>
               map mkTokenButton
                 [ multiplyT
-                , mkValueT 99 -- Should be e
+                -- , mkDigitT e
                 ]
 
             <>
-              map (mkTokenButton <<< mkValueT) (4 .. 6)
+              map (mkTokenButton <<< mkDigitT) (Four `enumFromTo` Six)
 
             <>
               map mkTokenButton
@@ -72,13 +76,13 @@ calculatorInput = do
                 ]
 
             <>
-              map (mkTokenButton <<< mkValueT) (1 .. 3)
+              map (mkTokenButton <<< mkDigitT) (One `enumFromTo` Three)
 
             <>
               map mkTokenButton
                 [ addT
                 , squareT
-                , mkValueT 0
+                , mkDigitT Zero
                 ]
 
             <> [ button { onClick: props.runEquals, icon: "=" } ]

@@ -3,29 +3,31 @@ module Logic.Tokens where
 import Prelude
 
 import Data.Either (Either)
+import Data.List (List)
 import Data.Number (cos, log, pow, sin, sqrt, tan, (%))
-import Logic.MathTree (BinaryOp(..), Bracket(..), Priority(..), Tree, UnaryOp(..), Value(..), insertBinaryOp, insertBracket, insertUnaryOp, insertValue)
+import Logic.MathTree (BinaryOp(..), Bracket(..), Priority(..), Tree, UnaryOp(..), insertBinaryOp, insertBracket, insertDigit, insertUnaryOp)
 import Utils.Maths (factorial)
 import Utils.Maths as M
+import Logic.Digits (Digit)
 
-data Token = TBracket Bracket | TBinaryOp BinaryOp | TUnaryOp UnaryOp | TValue Value
+data Token = TBracket Bracket | TBinaryOp BinaryOp | TUnaryOp UnaryOp | TDigit Digit
 
 instance Show Token where
   show = case _ of
     TBracket bracket -> show bracket
     TBinaryOp binaryOp -> show binaryOp
     TUnaryOp unaryOp -> show unaryOp
-    TValue value -> show value
+    TDigit digit -> show digit
 
 insertToken :: Token -> Tree -> Either String Tree
 insertToken token tree = case token of
   TBracket bracket -> insertBracket bracket tree
   TBinaryOp op -> insertBinaryOp op tree
   TUnaryOp op -> insertUnaryOp op tree
-  TValue value -> insertValue value tree
+  TDigit digit -> insertDigit digit tree
 
-mkValueT :: Int -> Token
-mkValueT = TValue <<< Value
+mkDigitT :: Digit -> Token
+mkDigitT = TDigit
 
 leftBracketT :: Token
 leftBracketT = TBracket $ LeftBracket "("
