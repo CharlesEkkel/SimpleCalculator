@@ -70,7 +70,7 @@ derive newtype instance Semigroup Digits
 derive newtype instance Monoid Digits
 
 instance Show Digits where
-  show (Digits digits) = fold $ map show $ digits
+  show (Digits digits) = fold $ reverse $ map show $ digits
 
 digitsCount :: Digits -> Int
 digitsCount (Digits digits) = length digits
@@ -128,8 +128,9 @@ preciseToNumber = case _ of
 
 numberToPrecise :: Number -> PreciseNum
 numberToPrecise x = (unsafePartial fromJust) $ case split (Pattern ".") (show x) of
-  [ number ] -> PreciseInt <$> stringToDigits number
-  [ whole, dec ] -> PreciseDec <$> stringToDigits whole <*> stringToDigits dec
+  [ whole, dec ] -> case dec of
+    "0" -> PreciseInt <$> stringToDigits whole
+    _ -> PreciseDec <$> stringToDigits whole <*> stringToDigits dec
   _ -> Nothing -- Should be impossible, given the nature of Numbers in purescript.
 
 appendDigit :: Digit -> PreciseNum -> PreciseNum
