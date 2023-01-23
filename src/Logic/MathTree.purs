@@ -2,9 +2,11 @@ module Logic.MathTree where
 
 import Prelude
 
+import Data.Decimal (Decimal, fromInt)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
-import Logic.Digits (Digit, PreciseNum, appendDigit, digitToPrecNum, numberToPrecise, preciseToNumber, removeDigit)
+import Logic.Digits (Digit, Digits, appendDigit, decimalToDigits, digitsToDecimal, removeDigit)
+import Logic.Digits as Digits
 
 data Priority = Bottom | Middle | High | Top
 
@@ -12,8 +14,8 @@ derive instance eqPriority :: Eq Priority
 derive instance ordPriority :: Ord Priority
 
 data Bracket = LeftBracket String | RightBracket String
-data BinaryOp = BinaryOp Priority String (Number -> Number -> Number)
-data UnaryOp = LeftOp String (Number -> Number) | RightOp String (Number -> Number)
+data BinaryOp = BinaryOp Priority String (Decimal -> Decimal -> Decimal)
+data UnaryOp = LeftOp String (Decimal -> Decimal) | RightOp String (Decimal -> Decimal)
 
 instance Show Bracket where
   show = case _ of
@@ -42,16 +44,19 @@ startBrackets = UnaryNode (LeftOp "" identity)
 data Tree
   = BinaryNode BinaryOp Tree Tree
   | UnaryNode UnaryOp Tree
-  | NumberLeaf PreciseNum
+  | NumberLeaf Digits
   | EmptyLeaf
+
+class TreeElement a where
+  insert :: a -> Tree -> Tree
 
 isEmptyTree :: Tree -> Boolean
 isEmptyTree = case _ of
   EmptyLeaf -> true
   _ -> false
 
-mkSingletonTree :: Number -> Tree
-mkSingletonTree = NumberLeaf <<< numberToPrecise
+mkSingletonTree :: Decimal -> Tree
+mkSingletonTree = NumberLeaf <<< decimalToDigits
 
 -- | Render a tree as a readable, mathematical expression.
 renderTree :: Tree -> String
@@ -64,10 +69,10 @@ renderTree = case _ of
   BinaryNode (BinaryOp _ opStr _) l r -> renderTree l <> " " <> opStr <> " " <> renderTree r
 
 -- | Evaluate a pre-built mathematical syntax tree down to a single value.
-evaluateTree :: Tree -> Number
+evaluateTree :: Tree -> Decimal
 evaluateTree = case _ of
-  EmptyLeaf -> 0.0
-  NumberLeaf precNum -> preciseToNumber precNum
+  EmptyLeaf -> fromInt 0
+  NumberLeaf digits -> digitsToDecimal digits
   BinaryNode (BinaryOp _ _ f) left right -> f (evaluateTree left) (evaluateTree right)
   UnaryNode op child -> case op of
     LeftOp _ f -> f (evaluateTree child)
@@ -75,7 +80,7 @@ evaluateTree = case _ of
 
 insertDigit :: Digit -> Tree -> Either String Tree
 insertDigit digit = case _ of
-  EmptyLeaf -> Right $ NumberLeaf $ digitToPrecNum digit
+  EmptyLeaf -> Right $ NumberLeaf $ Digits.singleton digit
   NumberLeaf precNum -> Right $ NumberLeaf $ appendDigit digit precNum
   BinaryNode op left right -> BinaryNode op left <$> insertDigit digit right
   UnaryNode op child -> case op of

@@ -15,6 +15,7 @@ to generate this file without the comments in this block.
   [ "aff"
   , "arrays"
   , "console"
+  , "decimals"
   , "effect"
   , "either"
   , "enums"
@@ -35,6 +36,7 @@ to generate this file without the comments in this block.
   , "spec-quickcheck"
   , "strings"
   , "tuples"
+  , "unfoldable"
   , "web-dom"
   , "web-html"
   ]
