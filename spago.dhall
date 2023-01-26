@@ -35,6 +35,7 @@ to generate this file without the comments in this block.
   , "spec"
   , "spec-quickcheck"
   , "strings"
+  , "stringutils"
   , "tuples"
   , "unfoldable"
   , "web-dom"

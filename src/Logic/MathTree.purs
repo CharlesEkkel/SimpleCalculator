@@ -5,7 +5,7 @@ import Prelude
 import Data.Decimal (Decimal, fromInt)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromJust)
-import Logic.Digits (Digit, Digits, appendDigit, removeDigit)
+import Logic.Digits (DigitValue, Digits, appendDigit, removeDigit)
 import Logic.Digits as Digits
 import Partial.Unsafe (unsafePartial)
 
@@ -79,7 +79,7 @@ evaluateTree = case _ of
     LeftOp _ f -> f (evaluateTree child)
     RightOp _ f -> f (evaluateTree child)
 
-insertDigit :: Digit -> Tree -> Either String Tree
+insertDigit :: DigitValue -> Tree -> Either String Tree
 insertDigit digit = case _ of
   EmptyLeaf -> Right $ NumberLeaf $ Digits.singleton digit
   NumberLeaf precNum -> Right $ NumberLeaf $ appendDigit digit precNum
