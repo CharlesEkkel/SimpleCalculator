@@ -4,9 +4,10 @@ import Prelude
 
 import Data.Decimal (Decimal, fromInt)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
-import Logic.Digits (Digit, Digits, appendDigit, decimalToDigits, digitsToDecimal, removeDigit)
+import Data.Maybe (Maybe(..), fromJust)
+import Logic.Digits (Digit, Digits, appendDigit, removeDigit)
 import Logic.Digits as Digits
+import Partial.Unsafe (unsafePartial)
 
 data Priority = Bottom | Middle | High | Top
 
@@ -56,7 +57,7 @@ isEmptyTree = case _ of
   _ -> false
 
 mkSingletonTree :: Decimal -> Tree
-mkSingletonTree = NumberLeaf <<< decimalToDigits
+mkSingletonTree = NumberLeaf <<< unsafePartial fromJust <<< Digits.fromDecimal 64
 
 -- | Render a tree as a readable, mathematical expression.
 renderTree :: Tree -> String
@@ -72,7 +73,7 @@ renderTree = case _ of
 evaluateTree :: Tree -> Decimal
 evaluateTree = case _ of
   EmptyLeaf -> fromInt 0
-  NumberLeaf digits -> digitsToDecimal digits
+  NumberLeaf digits -> unsafePartial fromJust $ Digits.toDecimal digits
   BinaryNode (BinaryOp _ _ f) left right -> f (evaluateTree left) (evaluateTree right)
   UnaryNode op child -> case op of
     LeftOp _ f -> f (evaluateTree child)
