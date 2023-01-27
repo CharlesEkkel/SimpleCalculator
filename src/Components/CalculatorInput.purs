@@ -1,14 +1,10 @@
 module Components.CalculatorInput where
 
-import Prelude
+import Prelude hiding (one, zero)
 
 import Components.Button (mkButton)
-import Data.Array ((..))
-import Data.Enum (enumFromTo)
-import Data.Int (toNumber)
-import Data.Number (e)
-import Logic.Digits (Digit(..))
-import Logic.Tokens (Token, addT, cosT, divideT, exponentT, factorialT, leftBracketT, logTenT, mkDigitT, modulusT, multiplyT, naturalLogT, rightBracketT, sinT, squareRootT, squareT, subT, tanT)
+import Logic.MathTree (Token, renderToken)
+import Logic.Tokens (addT, cosT, divideT, eight, exponentT, factorialT, five, four, leftBracketT, logTenT, modulusT, multiplyT, naturalLogT, nine, one, rightBracketT, seven, sinT, six, squareRootT, squareT, subT, tanT, three, two, zero)
 import React.Basic.DOM as DOM
 import React.Basic.Events (EventHandler)
 import React.Basic.Hooks (Component, component)
@@ -28,10 +24,10 @@ calculatorInput = do
 
   button <- mkButton
 
-  component "CalculatorInput" \props -> React.do
+  component "CalculatorInput" \(props :: CalcInputProps) -> React.do
 
     let
-      mkTokenButton token = button { onClick: props.runAddToken token, icon: show token }
+      mkTokenButton token = button { onClick: props.runAddToken token, icon: renderToken token }
 
     pure $ DOM.section
       { className: "grid grid-cols-5 grid-rows-7 bg-sky-100 rounded-lg"
@@ -55,35 +51,24 @@ calculatorInput = do
                 , modulusT
                 , factorialT
                 , divideT
-                ]
-
-            <>
-              map (mkTokenButton <<< mkDigitT) (Seven `enumFromTo` Nine)
-
-            <>
-              map mkTokenButton
-                [ multiplyT
-                -- , mkDigitT e
-                ]
-
-            <>
-              map (mkTokenButton <<< mkDigitT) (Four `enumFromTo` Six)
-
-            <>
-              map mkTokenButton
-                [ subT
+                , seven
+                , eight
+                , nine
+                , multiplyT
+                , multiplyT -- Should be 'e'
+                , four
+                , five
+                , six
+                , subT
                 , exponentT
-                ]
-
-            <>
-              map (mkTokenButton <<< mkDigitT) (One `enumFromTo` Three)
-
-            <>
-              map mkTokenButton
-                [ addT
+                , one
+                , two
+                , three
+                , addT
                 , squareT
-                , mkDigitT Zero
+                , zero
                 ]
-
-            <> [ button { onClick: props.runEquals, icon: "=" } ]
+            <>
+              [ button { onClick: props.runEquals, icon: "=" }
+              ]
       }

@@ -5,8 +5,7 @@ import Prelude
 import Data.Either (Either(..))
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe(..))
-import Logic.MathTree (Tree(..), evaluateTree, mkSingletonTree, removeLastToken)
-import Logic.Tokens (Token, insertToken)
+import Logic.MathTree (Token, Tree(..), evaluateTree, insertIntoTree, mkSingletonTree, removeLastToken)
 
 type AppState =
   { oldCalculations :: List Tree
@@ -34,7 +33,7 @@ data Action
 appReducer :: AppState -> Action -> AppState
 appReducer state = case _ of
   AddToken t ->
-    case insertToken t state.currentCalculation of
+    case insertIntoTree t state.currentCalculation of
       Right tree -> state { currentCalculation = tree }
       Left err -> state { errorMessage = Just err }
 

@@ -2,74 +2,84 @@ module Logic.Tokens where
 
 import Prelude
 
-import Data.Either (Either)
 import Data.Decimal (cos, factorial, fromInt, ln, log10, pow, sin, sqrt, tan)
-import Logic.MathTree (BinaryOp(..), Bracket(..), Priority(..), Tree, UnaryOp(..), insertBinaryOp, insertBracket, insertDigit, insertUnaryOp)
-import Logic.Digits (Digit)
+import Logic.Digits (DigitValue(..))
+import Logic.MathTree (BinaryOp(..), Bracket(..), Priority(..), Token(..), UnaryOp(..))
 
-data Token = TBracket Bracket | TBinaryOp BinaryOp | TUnaryOp UnaryOp | TDigit Digit
+zero :: Token
+zero = DigitToken Zero
 
-instance Show Token where
-  show = case _ of
-    TBracket bracket -> show bracket
-    TBinaryOp binaryOp -> show binaryOp
-    TUnaryOp unaryOp -> show unaryOp
-    TDigit digit -> show digit
+one :: Token
+one = DigitToken One
 
-insertToken :: Token -> Tree -> Either String Tree
-insertToken token tree = case token of
-  TBracket bracket -> insertBracket bracket tree
-  TBinaryOp op -> insertBinaryOp op tree
-  TUnaryOp op -> insertUnaryOp op tree
-  TDigit digit -> insertDigit digit tree
+two :: Token
+two = DigitToken Two
 
-mkDigitT :: Digit -> Token
-mkDigitT = TDigit
+three :: Token
+three = DigitToken Three
+
+four :: Token
+four = DigitToken Four
+
+five :: Token
+five = DigitToken Five
+
+six :: Token
+six = DigitToken Six
+
+seven :: Token
+seven = DigitToken Seven
+
+eight :: Token
+eight = DigitToken Eight
+
+nine :: Token
+nine = DigitToken Nine
 
 leftBracketT :: Token
-leftBracketT = TBracket $ LeftBracket "("
+leftBracketT = BracketToken $ LeftBracket "("
 
 rightBracketT :: Token
-rightBracketT = TBracket $ RightBracket ")"
+rightBracketT = BracketToken $ RightBracket ")"
 
 addT :: Token
-addT = TBinaryOp $ BinaryOp Middle "+" add
+addT = BinaryToken $ BinaryOp Middle "+" add
 
 subT :: Token
-subT = TBinaryOp $ BinaryOp Middle "-" sub
+subT = BinaryToken $ BinaryOp Middle "-" sub
 
 multiplyT :: Token
-multiplyT = TBinaryOp $ BinaryOp High "×" mul
+multiplyT = BinaryToken $ BinaryOp High "×" mul
 
 divideT :: Token
-divideT = TBinaryOp $ BinaryOp High "/" div
+divideT = BinaryToken $ BinaryOp High "/" div
 
 exponentT :: Token
-exponentT = TBinaryOp $ BinaryOp Top "^" pow
+exponentT = BinaryToken $ BinaryOp Top "^" pow
 
 modulusT :: Token
-modulusT = TBinaryOp $ BinaryOp Top "mod" mod
+modulusT = BinaryToken $ BinaryOp Top "mod" mod
 
 squareRootT :: Token
-squareRootT = TUnaryOp $ LeftOp "√" sqrt
+squareRootT = UnaryToken $ LeftOp "√" sqrt
 
 naturalLogT :: Token
-naturalLogT = TUnaryOp $ LeftOp "ln" ln
+naturalLogT = UnaryToken $ LeftOp "ln" ln
 
 logTenT :: Token
-logTenT = TUnaryOp $ LeftOp "log₁₀" log10
+logTenT = UnaryToken $ LeftOp "log₁₀" log10
 
 factorialT :: Token
-factorialT = TUnaryOp $ RightOp "!" factorial
+factorialT = UnaryToken $ RightOp "!" factorial
 
 squareT :: Token
-squareT = TUnaryOp $ RightOp "^2" (flip pow (fromInt 2))
+squareT = UnaryToken $ RightOp "^2" (flip pow (fromInt 2))
 
 sinT :: Token
-sinT = TUnaryOp $ LeftOp "sin" sin
+sinT = UnaryToken $ LeftOp "sin" sin
 
 cosT :: Token
-cosT = TUnaryOp $ LeftOp "cos" cos
+cosT = UnaryToken $ LeftOp "cos" cos
 
 tanT :: Token
-tanT = TUnaryOp $ LeftOp "tan" tan
+tanT = UnaryToken $ LeftOp "tan" tan

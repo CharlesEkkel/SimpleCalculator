@@ -6,7 +6,7 @@ import Data.Decimal (fromInt, fromNumber)
 import Data.Decimal as Decimal
 import Data.Maybe (Maybe(..))
 import Data.Unfoldable (replicate)
-import Logic.Digits (Digit(..), Digits(..))
+import Logic.Digits (DigitValue(..), Digits(..))
 import Logic.Digits as Digits
 import Test.QuickCheck (Result, (===))
 import Test.Spec (Spec, describe, it)
@@ -30,8 +30,8 @@ digitTests = do
     it "can deal with long whole numbers" do
       Digits.fromDecimal 20 (fromInt 1 * (fromInt 10 `Decimal.pow` fromInt 15)) `shouldEqual` Just (Digits ([ One ] <> replicate 15 Zero))
     it "can deal with long decimals" do
-      (fromInt 1 / (fromInt 10 `Decimal.pow` fromInt 15)) `shouldEqual` fromInt 5
-  -- Digits.fromDecimal 20 (fromInt 1 / (fromInt 10 `Decimal.pow` fromInt 15)) `shouldEqual` Just (Digits ([ Zero, Decimal ] <> replicate 14 Zero <> [ One ]))
+      -- (fromInt 1 / (fromInt 10 `Decimal.pow` fromInt 15)) `shouldEqual` fromInt 5
+      Digits.fromDecimal 20 (fromInt 1 / (fromInt 10 `Decimal.pow` fromInt 15)) `shouldEqual` Just (Digits ([ Zero, Decimal ] <> replicate 14 Zero <> [ One ]))
   -- it "converts back and forth" do
   --   quickCheck \num -> preciseToNumber <$> numToPrecise num === Just num
   where
