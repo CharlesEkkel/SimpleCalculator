@@ -14,6 +14,7 @@ import Data.Newtype (class Newtype, modify, unwrap, wrap)
 import Data.String as String
 import Data.String.Utils (toCharArray)
 import Data.Traversable (traverse)
+import Data.Tuple (fst)
 
 -- | Explicit digits for type safety
 data DigitValue = Zero | One | Two | Three | Four | Five | Six | Seven | Eight | Nine | Decimal | Exponent | Positive | Negative
@@ -86,19 +87,18 @@ toDecimal = Decimal.fromString <<< digitsToString
 
 type Precision = Int
 
--- | Precision is the number of significant figures to round to.
-fromDecimal :: Precision -> Decimal -> Maybe Digits
-fromDecimal p dec = stringToDigits $ Decimal.toPrecision p dec
+fromDecimal :: Decimal -> Maybe Digits
+fromDecimal dec = stringToDigits $ Decimal.toString dec
 
 -- | A Just return value requires that the string only contain valid digits (including a decimal point).
 stringToDigits :: String -> Maybe Digits
-stringToDigits = map (reverseDigits <<< Digits <<< foldMap digitToString) <<< traverse stringToDigit <<< toCharArray
+stringToDigits = map (Digits <<< reverseString <<< foldMap digitToString) <<< traverse stringToDigit <<< toCharArray
 
 digitsToString :: Digits -> String
-digitsToString = unwrap <<< reverseDigits
+digitsToString = reverseString <<< unwrap
 
-reverseDigits :: Digits -> Digits
-reverseDigits = modify $ String.fromCodePointArray <<< Array.reverse <<< String.toCodePointArray
+reverseString :: String -> String
+reverseString = String.fromCodePointArray <<< Array.reverse <<< String.toCodePointArray
 
 singleton :: DigitValue -> Digits
 singleton = Digits <<< digitToString

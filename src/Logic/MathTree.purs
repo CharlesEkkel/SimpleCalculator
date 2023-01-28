@@ -5,7 +5,7 @@ import Prelude
 import Data.Decimal (Decimal, fromInt)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromJust)
-import Logic.Digits (DigitValue, Digits, addDigit, digitToString, removeDigit)
+import Logic.Digits (DigitValue, Digits, addDigit, digitToString, digitsToString, removeDigit)
 import Logic.Digits as Digits
 import Partial.Unsafe (unsafePartial)
 
@@ -57,13 +57,13 @@ isEmptyTree = case _ of
 
 -- | Make a Tree from a single Decimal value. Useful for the result of a calculation.
 mkSingletonTree :: Decimal -> Tree
-mkSingletonTree = NumberLeaf <<< unsafePartial fromJust <<< Digits.fromDecimal 64
+mkSingletonTree = NumberLeaf <<< unsafePartial fromJust <<< Digits.fromDecimal
 
 -- | Render a tree as a readable, mathematical expression.
 renderTree :: Tree -> String
 renderTree = case _ of
   EmptyLeaf -> ""
-  NumberLeaf precNum -> show precNum
+  NumberLeaf precNum -> digitsToString precNum
   UnaryNode op child -> case op of
     LeftOp opStr _ -> opStr <> renderTree child
     RightOp opStr _ -> renderTree child <> opStr
