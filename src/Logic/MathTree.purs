@@ -5,7 +5,7 @@ import Prelude
 import Data.Decimal (Decimal, fromInt)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromJust)
-import Logic.Digits (DigitValue, Digits, appendDigit, digitToString, removeDigit)
+import Logic.Digits (DigitValue, Digits, addDigit, digitToString, removeDigit)
 import Logic.Digits as Digits
 import Partial.Unsafe (unsafePartial)
 
@@ -138,7 +138,7 @@ insertIntoTree token fullTree = case token of
 
   insertDigit digit tree = case tree of
     EmptyLeaf -> Right $ NumberLeaf $ Digits.singleton digit
-    NumberLeaf precNum -> Right $ NumberLeaf $ appendDigit digit precNum
+    NumberLeaf precNum -> Right $ NumberLeaf $ addDigit digit precNum
     BinaryNode op left right -> BinaryNode op left <$> insertDigit digit right
     UnaryNode op child -> case op of
       LeftOp _ _ -> UnaryNode op <$> insertDigit digit child

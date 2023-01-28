@@ -2,7 +2,6 @@ module Logic.Digits where
 
 import Prelude
 
-import Data.String.Utils (toCharArray)
 import Data.Array as Array
 import Data.Decimal (Decimal)
 import Data.Decimal as Decimal
@@ -10,12 +9,11 @@ import Data.Enum (class Enum)
 import Data.Enum.Generic (genericPred, genericSucc)
 import Data.Foldable (foldMap)
 import Data.Generic.Rep (class Generic)
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(..))
+import Data.Newtype (class Newtype, modify, unwrap, wrap)
 import Data.String as String
-import Data.String.CodeUnits (charAt)
+import Data.String.Utils (toCharArray)
 import Data.Traversable (traverse)
-import Data.Tuple (Tuple(..))
-import Data.Unfoldable (class Unfoldable, unfoldr)
 
 -- | Explicit digits for type safety
 data DigitValue = Zero | One | Two | Three | Four | Five | Six | Seven | Eight | Nine | Decimal | Exponent | Positive | Negative
@@ -66,20 +64,22 @@ stringToDigit = case _ of
   "-" -> Just Negative
   _ -> Nothing
 
-newtype Digits = Digits (Array DigitValue)
+newtype Digits = Digits String
 
 derive newtype instance Eq Digits
 derive newtype instance Semigroup Digits
 derive newtype instance Monoid Digits
+derive instance Newtype Digits _
 
 instance Show Digits where
   show = (<>) "Digits " <<< digitsToString
 
-addToDigits :: DigitValue -> Digits -> Digits
-addToDigits d (Digits digits) = Digits $ digits `Array.snoc` d
+addDigit :: DigitValue -> Digits -> Digits
+addDigit newDigit = modify (digitToString newDigit <> _)
 
-removeLastDigit :: Digits -> Digits
-removeLastDigit (Digits digits) = Digits $ fromMaybe [] $ map (_.init) $ Array.unsnoc digits
+-- | A Nothing return value means that there was nothing to remove.
+removeDigit :: Digits -> Maybe Digits
+removeDigit = map (wrap <<< _.tail) <<< String.uncons <<< unwrap
 
 toDecimal :: Digits -> Maybe Decimal
 toDecimal = Decimal.fromString <<< digitsToString
@@ -92,17 +92,13 @@ fromDecimal p dec = stringToDigits $ Decimal.toPrecision p dec
 
 -- | A Just return value requires that the string only contain valid digits (including a decimal point).
 stringToDigits :: String -> Maybe Digits
-stringToDigits = map Digits <<< traverse stringToDigit <<< toCharArray
+stringToDigits = map (reverseDigits <<< Digits <<< foldMap digitToString) <<< traverse stringToDigit <<< toCharArray
 
 digitsToString :: Digits -> String
-digitsToString (Digits digits) = foldMap digitToString digits
+digitsToString = unwrap <<< reverseDigits
 
-appendDigit :: DigitValue -> Digits -> Digits
-appendDigit newDigit (Digits digits) = Digits $ Array.snoc digits newDigit
-
--- | A Nothing return value means that there was nothing to remove.
-removeDigit :: Digits -> Maybe Digits
-removeDigit (Digits digits) = Digits <$> map (_.init) (Array.unsnoc digits)
+reverseDigits :: Digits -> Digits
+reverseDigits = modify $ String.fromCodePointArray <<< Array.reverse <<< String.toCodePointArray
 
 singleton :: DigitValue -> Digits
-singleton = Digits <<< Array.singleton
+singleton = Digits <<< digitToString
